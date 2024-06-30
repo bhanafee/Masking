@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Container for an Employee Identification number.
+ * Container for an Employer Identification number.
  */
 public class EIN extends TIN {
     public static final String EIN_REGEX = "(?<prefix>\\d{2})?-(?<serial>\\d{7})";
