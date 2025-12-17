@@ -17,7 +17,7 @@ import java.util.Formatter;
 @SuppressWarnings("unused")
 public class Sensitive<T> implements Formattable {
 
-    protected final T contained;
+    private final T contained;
 
     private final Renderer<T> renderer;
 
@@ -26,6 +26,17 @@ public class Sensitive<T> implements Formattable {
         this.contained = contained;
         // TODO: replace ignored with _ when JEP 443 "unnamed variable" is available
         this.renderer = renderer == null ? (ignored, precision, alternate) -> "" : renderer;
+    }
+
+    /**
+     * Returns the contained sensitive value. Subclasses may access this to implement
+     * custom behavior. Subclasses may override to provide additional protection (e.g., cloning arrays).
+     * Use with caution to avoid exposing sensitive data.
+     *
+     * @return the contained sensitive value
+     */
+    protected T getContained() {
+        return contained;
     }
 
     public Sensitive(final T contained) {
@@ -55,7 +66,7 @@ public class Sensitive<T> implements Formattable {
         final boolean left = ((flags & FormattableFlags.LEFT_JUSTIFY) == FormattableFlags.LEFT_JUSTIFY);
 
         // TODO: use functional syntax
-        final CharSequence redacted = renderer.apply(contained, precision, alternate);
+        final CharSequence redacted = renderer.apply(getContained(), precision, alternate);
 
         formatter.format(residualFormat(width, left, upper), redacted);
     }
@@ -78,7 +89,7 @@ public class Sensitive<T> implements Formattable {
      */
     @Override
     public int hashCode() {
-        return contained.hashCode();
+        return getContained().hashCode();
     }
 
     /**
@@ -94,7 +105,7 @@ public class Sensitive<T> implements Formattable {
 
         Sensitive<?> sensitive = (Sensitive<?>) o;
 
-        return contained.equals(sensitive.contained);
+        return getContained().equals(sensitive.getContained());
     }
 
     @FunctionalInterface

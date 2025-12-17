@@ -65,10 +65,10 @@ public class EIN extends TIN {
     }
 
     public String getPrefix() {
-        return contained[0];
+        return getContained()[0];
     }
 
     public String getSerial() {
-        return contained[1];
+        return getContained()[1];
     }
 }

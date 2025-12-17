@@ -72,14 +72,14 @@ public class SSN extends TIN {
     }
 
     public String getArea() {
-        return contained[0];
+        return getContained()[0];
     }
 
     public String getGroup() {
-        return contained[1];
+        return getContained()[1];
     }
 
     public String getSerial() {
-        return contained[2];
+        return getContained()[2];
     }
 }
