@@ -36,6 +36,15 @@ import java.util.Formatter;
  * Instances of this class are immutable and thread-safe, provided the contained data type {@code T}
  * is itself immutable or properly synchronized.
  *
+ * <h2>Subclassing Guidelines</h2>
+ * Subclasses extending this class for custom behavior MUST:
+ * <ul>
+ *     <li>Not override {@code toString()} to expose sensitive data</li>
+ *     <li>Respect the rendering contract defined by the {@link Renderer}</li>
+ *     <li>Override {@code getContained()} only to add additional protection (e.g., cloning)</li>
+ *     <li>Document any security implications of their custom behavior</li>
+ * </ul>
+ *
  * @param <T> The type of sensitive data to be protected.
  */
 @SuppressWarnings("unused")

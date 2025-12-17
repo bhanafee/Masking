@@ -5,6 +5,29 @@ import com.maybeitssquid.sensitive.Sensitive.Renderer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+/**
+ * Factory methods for creating {@link Renderer} instances.
+ *
+ * <h3>Usage Examples</h3>
+ * <pre>{@code
+ * // Simple masking - show last 4 digits
+ * Renderer<String> ssnRenderer = Renderers.simple(
+ *     Extractor.string(),
+ *     RegexRedactors.mask('-')
+ * );
+ * Sensitive<String> ssn = new Sensitive<>(ssnRenderer, "123-45-6789");
+ * System.out.printf("%.4s", ssn); // prints "###-##-6789"
+ *
+ * // Alternate rendering for admin context
+ * Renderer<String> ccRenderer = Renderers.alternateIsUnredacted(
+ *     Extractor.string(),
+ *     RegexRedactors.DEFAULT_MASK
+ * );
+ * Sensitive<String> card = new Sensitive<>(ccRenderer, "4111-1111-1111-1111");
+ * System.out.printf("%s", card);   // prints "####-####-####-1111"
+ * System.out.printf("%#s", card);  // prints "4111-1111-1111-1111" (unredacted)
+ * }</pre>
+ */
 @SuppressWarnings("unused")
 public class Renderers {
     /**
