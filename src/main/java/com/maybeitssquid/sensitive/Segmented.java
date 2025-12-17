@@ -12,7 +12,7 @@ import java.util.Arrays;
 public class Segmented<T> extends Sensitive<T[]> {
 
     public Segmented(final Renderer<T[]> renderer, final T[] contained) {
-        super(renderer, contained);
+        super(renderer, contained == null ? null : contained.clone());
     }
 
     /**

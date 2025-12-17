@@ -9,11 +9,14 @@ import java.util.regex.Pattern;
  */
 public class SSN extends TIN {
 
-    public static final String SSN_REGEX = "(?<area>\\d{3})?-(?<group>\\d{2})?-(?<serial>\\d{4})";
+    public static final String SSN_REGEX = "(?<area>\\d{3})-(?<group>\\d{2})-(?<serial>\\d{4})";
 
     private static final Pattern SSN_PATTERN = Pattern.compile(SSN_REGEX);
 
     public static String[] parse(final CharSequence value) {
+        if (value == null) {
+            throw new InvalidTINException("SSN value cannot be null");
+        }
         final Matcher matcher = SSN_PATTERN.matcher(value);
         if (matcher.matches()) {
             return new String[]{
@@ -22,20 +25,46 @@ public class SSN extends TIN {
                     matcher.group("serial")
             };
         } else {
-            return new String[0];
+            throw new InvalidTINException("Invalid SSN format: expected ###-##-####, got: " + value);
         }
     }
 
     public SSN(final String area, final String group, final String serial) {
-        super(area, group, serial);
+        super(validateSegments(area, group, serial));
+    }
+
+    private static String[] validateSegments(final String area, final String group, final String serial) {
+        if (area == null || group == null || serial == null) {
+            throw new InvalidTINException("SSN segments cannot be null");
+        }
+        if (!area.matches("\\d{3}")) {
+            throw new InvalidTINException("Invalid SSN area number: expected 3 digits, got: " + area);
+        }
+        if (!group.matches("\\d{2}")) {
+            throw new InvalidTINException("Invalid SSN group number: expected 2 digits, got: " + group);
+        }
+        if (!serial.matches("\\d{4}")) {
+            throw new InvalidTINException("Invalid SSN serial number: expected 4 digits, got: " + serial);
+        }
+        return new String[]{area, group, serial};
     }
 
     public SSN(final int area, final int group, final int serial) {
         this(
-                String.format(Locale.US, "%03d", area),
-                String.format(Locale.US, "%02d", group),
-                String.format(Locale.US, "%04d", serial)
+                validateIntSegment(area, 0, 999, "area"),
+                validateIntSegment(group, 0, 99, "group"),
+                validateIntSegment(serial, 0, 9999, "serial")
         );
+    }
+
+    private static String validateIntSegment(final int value, final int min, final int max, final String name) {
+        if (value < min || value > max) {
+            throw new InvalidTINException(
+                    String.format("Invalid SSN %s: expected %d-%d, got: %d", name, min, max, value)
+            );
+        }
+        final int width = String.valueOf(max).length();
+        return String.format(Locale.US, "%0" + width + "d", value);
     }
 
     public SSN(final CharSequence value) {
