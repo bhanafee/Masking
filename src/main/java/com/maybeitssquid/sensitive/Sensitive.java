@@ -136,8 +136,40 @@ public class Sensitive<T> implements Formattable {
         return getContained().equals(sensitive.getContained());
     }
 
+    /**
+     * Renders sensitive data as a {@link CharSequence} with appropriate redaction.
+     * Implementations control how much information is revealed based on formatting parameters.
+     *
+     * <h3>Precision Semantics</h3>
+     * The precision parameter controls how much unredacted data to show:
+     * <ul>
+     *     <li>{@code precision = -1}: Default behavior (typically shows half the data, implementation-dependent)</li>
+     *     <li>{@code precision >= 0}: Number of unredacted segments/characters to show
+     *         (e.g., for SSN "123-45-6789", precision=4 shows last 4 digits: "***-**-6789")</li>
+     * </ul>
+     * Note: Higher precision values show MORE data, not less. Precision=0 typically shows no data.
+     *
+     * <h3>Alternate Flag</h3>
+     * The alternate flag provides an alternative rendering mode:
+     * <ul>
+     *     <li>{@code alternate = false}: Standard redacted rendering</li>
+     *     <li>{@code alternate = true}: Alternative rendering (implementation-defined, often fully unredacted)</li>
+     * </ul>
+     * The alternate flag is triggered by the '#' flag in format strings (e.g., {@code "%#s"}).
+     *
+     * @see java.util.Formattable
+     * @see java.util.FormattableFlags#ALTERNATE
+     */
     @FunctionalInterface
     public interface Renderer<T> {
+        /**
+         * Renders the contained data with appropriate redaction.
+         *
+         * @param t the data to render
+         * @param precision the number of unredacted segments to show (or -1 for default)
+         * @param alternate whether to use alternate rendering mode
+         * @return the rendered (possibly redacted) representation
+         */
         CharSequence apply(T t, int precision, boolean alternate);
     }
 
