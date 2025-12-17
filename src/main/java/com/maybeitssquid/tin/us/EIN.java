@@ -6,8 +6,9 @@ import java.util.regex.Pattern;
 
 /**
  * Container for an Employer Identification number.
+ * This class is final to prevent subclasses from undermining the security protections.
  */
-public class EIN extends TIN {
+public final class EIN extends TIN {
     public static final String EIN_REGEX = "(?<prefix>\\d{2})-(?<serial>\\d{7})";
 
     private static final Pattern EIN_PATTERN = Pattern.compile(EIN_REGEX);

@@ -6,8 +6,9 @@ import java.util.regex.Pattern;
 
 /**
  * Container for an SSN or ITIN.
+ * This class is final to prevent subclasses from undermining the security protections.
  */
-public class SSN extends TIN {
+public final class SSN extends TIN {
 
     public static final String SSN_REGEX = "(?<area>\\d{3})-(?<group>\\d{2})-(?<serial>\\d{4})";
 
