@@ -12,6 +12,30 @@ import java.util.Formatter;
  * is defined by a {@link Renderer}. The renderer represents the contained object as a {@link CharSequence}
  * with sensitive data redacted. The default renderer produces an empty sequence.
  *
+ * <h2>Serialization Warning</h2>
+ * This class does not implement {@link java.io.Serializable}. Subclasses that implement
+ * {@code Serializable} MUST ensure sensitive data is not exposed through Java serialization.
+ * Consider:
+ * <ul>
+ *     <li>Marking sensitive fields as {@code transient}</li>
+ *     <li>Implementing {@code writeObject()} and {@code readObject()} to control serialization</li>
+ *     <li>Implementing {@code writeReplace()} to substitute a safe representation</li>
+ *     <li>Not implementing {@code Serializable} at all for classes containing truly sensitive data</li>
+ * </ul>
+ * Java serialization bypasses the rendering protection provided by {@link Formattable}, potentially
+ * exposing the raw sensitive data.
+ * <p>
+ * <b>Important:</b> External session caches (e.g., Redis, Memcached, distributed session stores)
+ * typically require Java serialization to persist session data. If sensitive data is marked
+ * {@code transient} or serialization is blocked, the data will be lost when the session is
+ * externalized. Consider storing only non-sensitive identifiers in sessions and retrieving
+ * sensitive data on-demand from secure storage, or implement custom serialization that
+ * re-encrypts sensitive data before persistence.
+ *
+ * <h2>Thread Safety</h2>
+ * Instances of this class are immutable and thread-safe, provided the contained data type {@code T}
+ * is itself immutable or properly synchronized.
+ *
  * @param <T> The type of sensitive data to be protected.
  */
 @SuppressWarnings("unused")
@@ -32,6 +56,10 @@ public class Sensitive<T> implements Formattable {
      * Returns the contained sensitive value. Subclasses may access this to implement
      * custom behavior. Subclasses may override to provide additional protection (e.g., cloning arrays).
      * Use with caution to avoid exposing sensitive data.
+     *
+     * <p><b>Security Note:</b> This method provides direct access to sensitive data for subclass
+     * implementation purposes. Avoid calling this method from public APIs or in contexts where
+     * the result might be logged, serialized, or otherwise persisted.
      *
      * @return the contained sensitive value
      */
