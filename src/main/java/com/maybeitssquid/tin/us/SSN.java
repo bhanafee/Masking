@@ -25,7 +25,7 @@ public class SSN extends TIN {
                     matcher.group("serial")
             };
         } else {
-            throw new InvalidTINException("Invalid SSN format: expected ###-##-####, got: " + value);
+            throw new InvalidTINException("Invalid SSN format: expected ###-##-#### (length: " + value.length() + ")");
         }
     }
 
@@ -38,13 +38,13 @@ public class SSN extends TIN {
             throw new InvalidTINException("SSN segments cannot be null");
         }
         if (!area.matches("\\d{3}")) {
-            throw new InvalidTINException("Invalid SSN area number: expected 3 digits, got: " + area);
+            throw new InvalidTINException("Invalid SSN area number: expected 3 digits (length: " + area.length() + ")");
         }
         if (!group.matches("\\d{2}")) {
-            throw new InvalidTINException("Invalid SSN group number: expected 2 digits, got: " + group);
+            throw new InvalidTINException("Invalid SSN group number: expected 2 digits (length: " + group.length() + ")");
         }
         if (!serial.matches("\\d{4}")) {
-            throw new InvalidTINException("Invalid SSN serial number: expected 4 digits, got: " + serial);
+            throw new InvalidTINException("Invalid SSN serial number: expected 4 digits (length: " + serial.length() + ")");
         }
         return new String[]{area, group, serial};
     }
@@ -60,7 +60,7 @@ public class SSN extends TIN {
     private static String validateIntSegment(final int value, final int min, final int max, final String name) {
         if (value < min || value > max) {
             throw new InvalidTINException(
-                    String.format("Invalid SSN %s: expected %d-%d, got: %d", name, min, max, value)
+                    String.format("Invalid SSN %s: expected range %d-%d", name, min, max)
             );
         }
         final int width = String.valueOf(max).length();
