@@ -195,7 +195,7 @@ public class Sensitive<T> implements Formattable {
         final boolean upper = ((flags & FormattableFlags.UPPERCASE) == FormattableFlags.UPPERCASE);
         final boolean left = ((flags & FormattableFlags.LEFT_JUSTIFY) == FormattableFlags.LEFT_JUSTIFY);
 
-        final CharSequence redacted = getRenderer().apply(getContained(), precision, alternate);
+        final CharSequence redacted = getRenderer().apply(this.contained.get(), precision, alternate);
 
         formatter.format(residualFormat(width, left, upper), redacted);
     }
@@ -218,7 +218,7 @@ public class Sensitive<T> implements Formattable {
      */
     @Override
     public int hashCode() {
-        return getContained().hashCode();
+        return this.contained.get().hashCode();
     }
 
     /**
@@ -234,6 +234,6 @@ public class Sensitive<T> implements Formattable {
 
         Sensitive<?> sensitive = (Sensitive<?>) o;
 
-        return getContained().equals(sensitive.getContained());
+        return this.contained.get().equals(sensitive.contained.get());
     }
 }
