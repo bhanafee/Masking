@@ -3,6 +3,7 @@ package com.maybeitssquid.sensitive;
 import java.util.Formattable;
 import java.util.FormattableFlags;
 import java.util.Formatter;
+import java.util.function.Supplier;
 
 /**
  * Container for sensitive data to protect it being inadvertently rendered as a plain {@link String}.
@@ -12,29 +13,44 @@ import java.util.Formatter;
  * is defined by a {@link Renderer}. The renderer represents the contained object as a {@link CharSequence}
  * with sensitive data redacted. The default renderer produces an empty sequence.
  *
- * <h2>Serialization Warning</h2>
- * This class does not implement {@link java.io.Serializable}. Subclasses that implement
- * {@code Serializable} MUST ensure sensitive data is not exposed through Java serialization.
- * Consider:
+ * <h2>Storage Model</h2>
+ * Sensitive data is stored internally via a {@link Supplier Supplier&lt;T&gt;} rather than directly.
+ * This indirection enables flexible storage strategies, particularly for controlling serialization behavior.
+ * When using the convenience constructors that accept a value directly, the value is automatically
+ * wrapped in a {@link DoNotSerialize} supplier, which prevents the value from surviving Java serialization.
+ *
+ * <p>For custom storage behavior, use the constructor that accepts a {@code Supplier<T>} directly:
+ * <pre>{@code
+ * // Default: value will not survive serialization
+ * Sensitive<String> safe = new Sensitive<>(renderer, "secret");
+ *
+ * // Custom supplier for alternative storage strategies
+ * Sensitive<String> custom = new Sensitive<>(renderer, () -> retrieveFromSecureStore());
+ * }</pre>
+ *
+ * <h2>Serialization Protection</h2>
+ * By default, this class provides automatic protection against inadvertent serialization of sensitive data.
+ * When constructed with a raw value, the value is wrapped in {@link DoNotSerialize}, which:
  * <ul>
- *     <li>Marking sensitive fields as {@code transient}</li>
- *     <li>Implementing {@code writeObject()} and {@code readObject()} to control serialization</li>
- *     <li>Implementing {@code writeReplace()} to substitute a safe representation</li>
- *     <li>Not implementing {@code Serializable} at all for classes containing truly sensitive data</li>
+ *     <li>Does not implement {@link java.io.Serializable}</li>
+ *     <li>Causes any attempt to serialize the containing object to fail with
+ *         {@link java.io.NotSerializableException}</li>
  * </ul>
- * Java serialization bypasses the rendering protection provided by {@link Formattable}, potentially
- * exposing the raw sensitive data.
- * <p>
- * <b>Important:</b> External session caches (e.g., Redis, Memcached, distributed session stores)
- * typically require Java serialization to persist session data. If sensitive data is marked
- * {@code transient} or serialization is blocked, the data will be lost when the session is
- * externalized. Consider storing only non-sensitive identifiers in sessions and retrieving
- * sensitive data on-demand from secure storage, or implement custom serialization that
- * re-encrypts sensitive data before persistence.
+ *
+ * <p>This fail-fast behavior ensures that sensitive data cannot be accidentally exposed through
+ * Java serialization, logging frameworks that serialize objects, or distributed caches.
+ *
+ * <p><b>Important:</b> If you need to serialize objects containing sensitive data (e.g., for session
+ * storage in Redis, Memcached, or distributed session stores), you must explicitly handle this by:
+ * <ul>
+ *     <li>Storing only non-sensitive identifiers and retrieving sensitive data on-demand</li>
+ *     <li>Providing a custom {@code Supplier<T>} that implements appropriate serialization behavior</li>
+ *     <li>Implementing custom {@code writeObject()}/{@code readObject()} methods in subclasses</li>
+ * </ul>
  *
  * <h2>Thread Safety</h2>
  * Instances of this class are immutable and thread-safe, provided the contained data type {@code T}
- * is itself immutable or properly synchronized.
+ * is itself immutable or properly synchronized, and the {@code Supplier<T>} is thread-safe.
  *
  * <h2>Subclassing Guidelines</h2>
  * Subclasses extending this class for custom behavior MUST:
@@ -46,19 +62,45 @@ import java.util.Formatter;
  * </ul>
  *
  * @param <T> The type of sensitive data to be protected.
+ * @see DoNotSerialize
+ * @see Renderer
  */
 @SuppressWarnings("unused")
 public class Sensitive<T> implements Formattable {
 
-    private final T contained;
+    private final Supplier<T> contained;
 
     private final Renderer<T> renderer;
 
-    public Sensitive(final Renderer<T> renderer, final T contained) {
-        if (contained == null) throw new NullPointerException("Sensitive value cannot be null");
+    /**
+     * Creates a new Sensitive container with the specified renderer and supplier.
+     *
+     * @param renderer  the renderer to use for formatting, or {@code null} for empty rendering
+     * @param contained the supplier providing the sensitive value; must not be {@code null}
+     * @throws NullPointerException if contained is {@code null}
+     */
+    public Sensitive(final Renderer<T> renderer, final Supplier<T> contained) {
+        if (contained == null) throw new NullPointerException("Sensitive value supplier cannot be null");
         this.contained = contained;
         // TODO: replace ignored with _ when JEP 443 "unnamed variable" is available
         this.renderer = renderer == null ? (ignored, precision, alternate) -> "" : renderer;
+    }
+
+    /**
+     * Convenience constructor that wraps the value in a {@link DoNotSerialize} supplier,
+     * providing automatic protection against Java serialization.
+     *
+     * @param renderer  the renderer to use for formatting, or {@code null} for empty rendering
+     * @param contained the sensitive value to wrap; must not be {@code null}
+     * @throws NullPointerException if contained is {@code null}
+     */
+    public Sensitive(final Renderer<T> renderer, final T contained) {
+        this(renderer, wrapNonNull(contained));
+    }
+
+    private static <T> Supplier<T> wrapNonNull(final T value) {
+        if (value == null) throw new NullPointerException("Sensitive value cannot be null");
+        return new DoNotSerialize<>(value);
     }
 
     /**
@@ -70,12 +112,19 @@ public class Sensitive<T> implements Formattable {
      * implementation purposes. Avoid calling this method from public APIs or in contexts where
      * the result might be logged, serialized, or otherwise persisted.
      *
-     * @return the contained sensitive value
+     * @return the contained sensitive value, or {@code null} if deserialized
      */
     protected T getContained() {
-        return contained;
+        return contained.get();
     }
 
+    /**
+     * Convenience constructor that wraps the value in a {@link DoNotSerialize} supplier
+     * with a default empty renderer.
+     *
+     * @param contained the sensitive value to wrap; must not be {@code null}
+     * @throws NullPointerException if contained is {@code null}
+     */
     public Sensitive(final T contained) {
         this(null, contained);
     }
