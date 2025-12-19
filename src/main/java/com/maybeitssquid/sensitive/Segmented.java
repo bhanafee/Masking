@@ -11,8 +11,15 @@ import java.util.Arrays;
 @SuppressWarnings("unused")
 public class Segmented<T> extends Sensitive<T[]> {
 
-    public Segmented(final Renderer<T[]> renderer, final T[] contained) {
-        super(renderer, contained == null ? null : contained.clone());
+    /**
+     * Creates a new Segmented container with the specified array.
+     * The array is cloned to prevent external mutation.
+     *
+     * @param contained the array of sensitive values; must not be {@code null}
+     * @throws NullPointerException if contained is {@code null}
+     */
+    public Segmented(final T[] contained) {
+        super(contained == null ? null : contained.clone());
     }
 
     /**

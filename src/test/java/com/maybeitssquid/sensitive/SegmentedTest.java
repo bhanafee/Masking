@@ -12,13 +12,28 @@ class SegmentedTest {
     private final String[] single = new String[] {"test"};
     private final String[] multiple = new String[] {"segmented", "test", "case"};
 
-    private final Sensitive.Renderer<String[]> renderer = (v, p, a) -> String.join(" ", v);
+    private final Renderer<String[]> renderer = (v, p, a) -> String.join(" ", v);
 
-    private final Segmented<String> emptySegment = new Segmented<>(renderer, empty);
+    private final Segmented<String> emptySegment = new Segmented<>(empty) {
+        @Override
+        protected Renderer<String[]> getRenderer() {
+            return renderer;
+        }
+    };
 
-    private final Segmented<String> singleSegment = new Segmented<>(renderer, single);
+    private final Segmented<String> singleSegment = new Segmented<>(single) {
+        @Override
+        protected Renderer<String[]> getRenderer() {
+            return renderer;
+        }
+    };
 
-    private final Segmented<String> multipleSegments = new Segmented<>(renderer, multiple);
+    private final Segmented<String> multipleSegments = new Segmented<>(multiple) {
+        @Override
+        protected Renderer<String[]> getRenderer() {
+            return renderer;
+        }
+    };
 
     @Test
     void testToString() {
@@ -42,7 +57,11 @@ class SegmentedTest {
         assertTrue(emptySegment.equals(emptySegment));
         assertTrue(singleSegment.equals(singleSegment));
         assertTrue(multipleSegments.equals(multipleSegments));
-        assertTrue(multipleSegments.equals(new Segmented<>(renderer, multiple)));
+
+        // Test equality with a new instance containing the same data
+        Segmented<String> anotherMultiple = new Segmented<>(multiple);
+        Segmented<String> yetAnotherMultiple = new Segmented<>(multiple);
+        assertTrue(anotherMultiple.equals(yetAnotherMultiple));
 
         assertFalse(multipleSegments.equals(singleSegment));
         assertFalse(singleSegment.equals(multipleSegments));

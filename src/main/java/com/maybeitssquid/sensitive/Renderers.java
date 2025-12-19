@@ -1,32 +1,52 @@
 package com.maybeitssquid.sensitive;
 
-import com.maybeitssquid.sensitive.Sensitive.Renderer;
-
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
  * Factory methods for creating {@link Renderer} instances.
  *
+ * <p>These factory methods are designed to be used in subclasses of {@link Sensitive} that
+ * override {@link Sensitive#getRenderer()} to provide custom rendering behavior. The returned
+ * renderer instances can be stored as static constants for efficient sharing across instances.
+ *
  * <h3>Usage Examples</h3>
  * <pre>{@code
- * // Simple masking - show last 4 digits
- * Renderer<String> ssnRenderer = Renderers.simple(
- *     Extractor.string(),
- *     RegexRedactors.mask('-')
- * );
- * Sensitive<String> ssn = new Sensitive<>(ssnRenderer, "123-45-6789");
+ * // Simple masking subclass - show last 4 digits
+ * public class SSN extends Sensitive<String> {
+ *     private static final Renderer<String> RENDERER = Renderers.simple(
+ *         Renderers.Extractor.string(),
+ *         RegexRedactors.mask('-')
+ *     );
+ *
+ *     public SSN(String value) { super(value); }
+ *
+ *     @Override
+ *     protected Renderer<String> getRenderer() { return RENDERER; }
+ * }
+ *
+ * SSN ssn = new SSN("123-45-6789");
  * System.out.printf("%.4s", ssn); // prints "###-##-6789"
  *
  * // Alternate rendering for admin context
- * Renderer<String> ccRenderer = Renderers.alternateIsUnredacted(
- *     Extractor.string(),
- *     RegexRedactors.DEFAULT_MASK
- * );
- * Sensitive<String> card = new Sensitive<>(ccRenderer, "4111-1111-1111-1111");
+ * public class CreditCard extends Sensitive<String> {
+ *     private static final Renderer<String> RENDERER = Renderers.alternateIsUnredacted(
+ *         Renderers.Extractor.string(),
+ *         RegexRedactors.DEFAULT_MASK
+ *     );
+ *
+ *     public CreditCard(String value) { super(value); }
+ *
+ *     @Override
+ *     protected Renderer<String> getRenderer() { return RENDERER; }
+ * }
+ *
+ * CreditCard card = new CreditCard("4111-1111-1111-1111");
  * System.out.printf("%s", card);   // prints "####-####-####-1111"
  * System.out.printf("%#s", card);  // prints "4111-1111-1111-1111" (unredacted)
  * }</pre>
+ *
+ * @see Sensitive#getRenderer()
  */
 @SuppressWarnings("unused")
 public class Renderers {

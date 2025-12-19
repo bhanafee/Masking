@@ -14,7 +14,12 @@ class SensitiveTest {
 
     private final Sensitive<String> sensitiveString = new Sensitive<>(containedString);
 
-    private final Sensitive<String> sensitiveRendered = new Sensitive<>((v, p, a) -> v, containedString);
+    private final Sensitive<String> sensitiveRendered = new Sensitive<>(containedString) {
+        @Override
+        protected Renderer<String> getRenderer() {
+            return (v, p, a) -> v;
+        }
+    };
 
     @Test
     void formatTo() {

@@ -13,19 +13,46 @@ import java.util.function.Supplier;
  * is defined by a {@link Renderer}. The renderer represents the contained object as a {@link CharSequence}
  * with sensitive data redacted. The default renderer produces an empty sequence.
  *
+ * <h2>Rendering Model</h2>
+ * The rendering strategy is provided by the {@link #getRenderer()} method, which subclasses override
+ * to define how their sensitive data should be formatted. This design allows many instances of the same
+ * subclass to share a single renderer instance, typically defined as a static constant.
+ *
+ * <p>The default implementation of {@code getRenderer()} returns a renderer that produces an empty
+ * string, ensuring no sensitive data is disclosed by default.
+ *
+ * <h3>Example Subclass</h3>
+ * <pre>{@code
+ * public class MaskedSecret extends Sensitive<String> {
+ *     private static final Renderer<String> RENDERER = (value, precision, alternate) -> {
+ *         if (alternate) return value;  // Full value when alternate flag set
+ *         return "***";                 // Masked by default
+ *     };
+ *
+ *     public MaskedSecret(String value) {
+ *         super(value);
+ *     }
+ *
+ *     @Override
+ *     protected Renderer<String> getRenderer() {
+ *         return RENDERER;
+ *     }
+ * }
+ * }</pre>
+ *
  * <h2>Storage Model</h2>
  * Sensitive data is stored internally via a {@link Supplier Supplier&lt;T&gt;} rather than directly.
  * This indirection enables flexible storage strategies, particularly for controlling serialization behavior.
- * When using the convenience constructors that accept a value directly, the value is automatically
+ * When using the convenience constructor that accepts a value directly, the value is automatically
  * wrapped in a {@link DoNotSerialize} supplier, which prevents the value from surviving Java serialization.
  *
  * <p>For custom storage behavior, use the constructor that accepts a {@code Supplier<T>} directly:
  * <pre>{@code
  * // Default: value will not survive serialization
- * Sensitive<String> safe = new Sensitive<>(renderer, "secret");
+ * Sensitive<String> safe = new Sensitive<>("secret");
  *
  * // Custom supplier for alternative storage strategies
- * Sensitive<String> custom = new Sensitive<>(renderer, () -> retrieveFromSecureStore());
+ * Sensitive<String> custom = new Sensitive<>(() -> retrieveFromSecureStore());
  * }</pre>
  *
  * <h2>Serialization Protection</h2>
@@ -55,8 +82,8 @@ import java.util.function.Supplier;
  * <h2>Subclassing Guidelines</h2>
  * Subclasses extending this class for custom behavior MUST:
  * <ul>
+ *     <li>Override {@link #getRenderer()} to provide custom rendering (typically returning a shared static instance)</li>
  *     <li>Not override {@code toString()} to expose sensitive data</li>
- *     <li>Respect the rendering contract defined by the {@link Renderer}</li>
  *     <li>Override {@code getContained()} only to add additional protection (e.g., cloning)</li>
  *     <li>Document any security implications of their custom behavior</li>
  * </ul>
@@ -64,43 +91,61 @@ import java.util.function.Supplier;
  * @param <T> The type of sensitive data to be protected.
  * @see DoNotSerialize
  * @see Renderer
+ * @see #getRenderer()
  */
 @SuppressWarnings("unused")
 public class Sensitive<T> implements Formattable {
 
     private final Supplier<T> contained;
 
-    private final Renderer<T> renderer;
-
     /**
-     * Creates a new Sensitive container with the specified renderer and supplier.
+     * Creates a new Sensitive container with the specified supplier.
      *
-     * @param renderer  the renderer to use for formatting, or {@code null} for empty rendering
      * @param contained the supplier providing the sensitive value; must not be {@code null}
      * @throws NullPointerException if contained is {@code null}
      */
-    public Sensitive(final Renderer<T> renderer, final Supplier<T> contained) {
+    public Sensitive(final Supplier<T> contained) {
         if (contained == null) throw new NullPointerException("Sensitive value supplier cannot be null");
         this.contained = contained;
-        // TODO: replace ignored with _ when JEP 443 "unnamed variable" is available
-        this.renderer = renderer == null ? (ignored, precision, alternate) -> "" : renderer;
-    }
-
-    /**
-     * Convenience constructor that wraps the value in a {@link DoNotSerialize} supplier,
-     * providing automatic protection against Java serialization.
-     *
-     * @param renderer  the renderer to use for formatting, or {@code null} for empty rendering
-     * @param contained the sensitive value to wrap; must not be {@code null}
-     * @throws NullPointerException if contained is {@code null}
-     */
-    public Sensitive(final Renderer<T> renderer, final T contained) {
-        this(renderer, wrapNonNull(contained));
     }
 
     private static <T> Supplier<T> wrapNonNull(final T value) {
         if (value == null) throw new NullPointerException("Sensitive value cannot be null");
         return new DoNotSerialize<>(value);
+    }
+
+    /**
+     * Returns the renderer used to format this sensitive value.
+     *
+     * <p>The default implementation returns a renderer that produces an empty string,
+     * ensuring no sensitive data is disclosed by default. Subclasses should override
+     * this method to provide custom rendering behavior, typically returning a shared
+     * static renderer instance.
+     *
+     * <h3>Example</h3>
+     * <pre>{@code
+     * public class MaskedValue extends Sensitive<String> {
+     *     private static final Renderer<String> RENDERER = (value, precision, alternate) -> {
+     *         if (alternate) return value;
+     *         return value.substring(0, Math.min(precision, value.length())) + "***";
+     *     };
+     *
+     *     public MaskedValue(String value) {
+     *         super(value);
+     *     }
+     *
+     *     @Override
+     *     protected Renderer<String> getRenderer() {
+     *         return RENDERER;
+     *     }
+     * }
+     * }</pre>
+     *
+     * @return the renderer for this sensitive value; never {@code null}
+     */
+    protected Renderer<T> getRenderer() {
+        // TODO: replace ignored with _ when JEP 443 "unnamed variable" is available
+        return (ignored, precision, alternate) -> "";
     }
 
     /**
@@ -119,14 +164,13 @@ public class Sensitive<T> implements Formattable {
     }
 
     /**
-     * Convenience constructor that wraps the value in a {@link DoNotSerialize} supplier
-     * with a default empty renderer.
+     * Convenience constructor that wraps the value in a {@link DoNotSerialize} supplier.
      *
      * @param contained the sensitive value to wrap; must not be {@code null}
      * @throws NullPointerException if contained is {@code null}
      */
     public Sensitive(final T contained) {
-        this(null, contained);
+        this(wrapNonNull(contained));
     }
 
     /**
@@ -151,8 +195,7 @@ public class Sensitive<T> implements Formattable {
         final boolean upper = ((flags & FormattableFlags.UPPERCASE) == FormattableFlags.UPPERCASE);
         final boolean left = ((flags & FormattableFlags.LEFT_JUSTIFY) == FormattableFlags.LEFT_JUSTIFY);
 
-        // TODO: use functional syntax
-        final CharSequence redacted = renderer.apply(getContained(), precision, alternate);
+        final CharSequence redacted = getRenderer().apply(getContained(), precision, alternate);
 
         formatter.format(residualFormat(width, left, upper), redacted);
     }
@@ -193,42 +236,4 @@ public class Sensitive<T> implements Formattable {
 
         return getContained().equals(sensitive.getContained());
     }
-
-    /**
-     * Renders sensitive data as a {@link CharSequence} with appropriate redaction.
-     * Implementations control how much information is revealed based on formatting parameters.
-     *
-     * <h3>Precision Semantics</h3>
-     * The precision parameter controls how much unredacted data to show:
-     * <ul>
-     *     <li>{@code precision = -1}: Default behavior (typically shows half the data, implementation-dependent)</li>
-     *     <li>{@code precision >= 0}: Number of unredacted segments/characters to show
-     *         (e.g., for SSN "123-45-6789", precision=4 shows last 4 digits: "***-**-6789")</li>
-     * </ul>
-     * Note: Higher precision values show MORE data, not less. Precision=0 typically shows no data.
-     *
-     * <h3>Alternate Flag</h3>
-     * The alternate flag provides an alternative rendering mode:
-     * <ul>
-     *     <li>{@code alternate = false}: Standard redacted rendering</li>
-     *     <li>{@code alternate = true}: Alternative rendering (implementation-defined, often fully unredacted)</li>
-     * </ul>
-     * The alternate flag is triggered by the '#' flag in format strings (e.g., {@code "%#s"}).
-     *
-     * @see java.util.Formattable
-     * @see java.util.FormattableFlags#ALTERNATE
-     */
-    @FunctionalInterface
-    public interface Renderer<T> {
-        /**
-         * Renders the contained data with appropriate redaction.
-         *
-         * @param t the data to render
-         * @param precision the number of unredacted segments to show (or -1 for default)
-         * @param alternate whether to use alternate rendering mode
-         * @return the rendered (possibly redacted) representation
-         */
-        CharSequence apply(T t, int precision, boolean alternate);
-    }
-
 }
