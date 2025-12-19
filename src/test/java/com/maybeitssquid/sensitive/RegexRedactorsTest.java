@@ -3,7 +3,7 @@ package com.maybeitssquid.sensitive;
 import org.junit.jupiter.api.Test;
 
 import static com.maybeitssquid.sensitive.RegexRedactors.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RegexRedactorsTest {
 
@@ -23,6 +23,13 @@ class RegexRedactorsTest {
     private final Renderers.Redactor maskReplacementRegex = maskWith('*',"[0-9]");
 
     private final Renderers.Redactor redactRegex = redact("_|", "[0-9]");
+
+    @Test
+    void truncateNull() {
+        assertEquals("", truncateAll.apply(-1, null));
+        assertEquals("", truncateAllowables.apply(-1, null));
+        assertEquals("", truncateARegex.apply(-1, null));
+    }
 
     @Test
     void truncateAll() {
@@ -48,6 +55,16 @@ class RegexRedactorsTest {
     void truncateRegex() {
         assertEquals("Te23st", truncateARegex.apply(2, "Te123st"));
         assertEquals("--89", truncateARegex.apply(2, "123-456-789"));
+    }
+
+    @Test
+    void maskNull() {
+        assertEquals("", maskAll.apply(-1, null));
+        assertEquals("", maskAllowables.apply(-1, null));
+        assertEquals("", maskDefault.apply(-1, null));
+        assertEquals("", maskWithAllowables.apply(-1, null));
+        assertEquals("", maskDefaultRegex.apply(-1, null));
+        assertEquals("", maskReplacementRegex.apply(-1, null));
     }
 
     @Test
@@ -115,6 +132,11 @@ class RegexRedactorsTest {
         assertEquals("***-**/6", maskReplacementRegex.apply(1, "123-45/6"));
         assertEquals("***-**/*", maskReplacementRegex.apply(0, "123-45/6"));
         assertEquals("***-45/6", maskReplacementRegex.apply(-1, "123-45/6"));
+    }
+
+    @Test
+    void redactNull() {
+        assertEquals("", redactRegex.apply(-1, null));
     }
 
     @Test

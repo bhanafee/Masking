@@ -16,7 +16,7 @@ public class CharSequenceExtractors {
      * @param <T> any type that extends {@link CharSequence}
      */
     public static <T extends CharSequence> Extractor<T> identity() {
-        return CharSequence::toString;
+        return raw -> raw == null ? "" : raw.toString();
     }
 
     /**
@@ -27,7 +27,7 @@ public class CharSequenceExtractors {
      * @param <T> any element type that extends {@link CharSequence}
      */
     public static <T extends CharSequence> Extractor<T[]> concatenate() {
-        return raw -> String.join("", raw);
+        return raw -> raw == null ? "" : String.join("", raw);
     }
 
     /**
@@ -51,6 +51,6 @@ public class CharSequenceExtractors {
      */
     public static <T extends CharSequence> Extractor<T[]> delimit(final char delimiter) {
         final String d = Character.toString(delimiter);
-        return raw -> String.join(d, raw);
+        return raw -> raw == null ? "" : String.join(d, raw);
     }
 }

@@ -3,6 +3,7 @@ package com.maybeitssquid.sensitive;
 import java.util.Formattable;
 import java.util.FormattableFlags;
 import java.util.Formatter;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -96,7 +97,7 @@ import java.util.function.Supplier;
 @SuppressWarnings("unused")
 public class Sensitive<T> implements Formattable {
 
-    private final Supplier<T> contained;
+    protected final Supplier<T> contained;
 
     /**
      * Creates a new Sensitive container with the specified supplier.
@@ -109,9 +110,13 @@ public class Sensitive<T> implements Formattable {
         this.contained = contained;
     }
 
-    private static <T> Supplier<T> wrapNonNull(final T value) {
-        if (value == null) throw new NullPointerException("Sensitive value cannot be null");
-        return new DoNotSerialize<>(value);
+    /**
+     * Convenience constructor that wraps the value in a {@link DoNotSerialize} supplier.
+     *
+     * @param contained the sensitive value to wrap
+     */
+    public Sensitive(final T contained) {
+        this(new DoNotSerialize<>(contained));
     }
 
     /**
@@ -164,16 +169,6 @@ public class Sensitive<T> implements Formattable {
     }
 
     /**
-     * Convenience constructor that wraps the value in a {@link DoNotSerialize} supplier.
-     *
-     * @param contained the sensitive value to wrap; must not be {@code null}
-     * @throws NullPointerException if contained is {@code null}
-     */
-    public Sensitive(final T contained) {
-        this(wrapNonNull(contained));
-    }
-
-    /**
      * Generates a format string to apply the parts of the formatting instructions that are not covered by the renderer.
      *
      * @param width the minimum width of the output
@@ -218,7 +213,7 @@ public class Sensitive<T> implements Formattable {
      */
     @Override
     public int hashCode() {
-        return this.contained.get().hashCode();
+        return Objects.hashCode(this.contained.get());
     }
 
     /**
@@ -234,6 +229,6 @@ public class Sensitive<T> implements Formattable {
 
         Sensitive<?> sensitive = (Sensitive<?>) o;
 
-        return this.contained.get().equals(sensitive.contained.get());
+        return Objects.equals(this.contained.get(), sensitive.contained.get());
     }
 }

@@ -23,10 +23,20 @@ class CharSequenceExtractorsTest {
     }
 
     @Test
+    void identityNull() {
+        assertEquals("", identity.apply(null));
+    }
+
+    @Test
     void concatenate() {
         assertEquals("", concatenate.apply(empty));
         assertEquals("test", concatenate.apply(single));
         assertEquals("concatenationtestcase", concatenate.apply(multiple));
+    }
+
+    @Test
+    void concatenateNull() {
+        assertEquals("", concatenate.apply(null));
     }
 
     @Test
@@ -41,5 +51,11 @@ class CharSequenceExtractorsTest {
         assertEquals("", delimitSlash.apply(empty));
         assertEquals("test", delimitSlash.apply(single));
         assertEquals("concatenation/test/case", delimitSlash.apply(multiple));
+    }
+
+    @Test
+    void delimitNull() {
+        assertEquals("", delimitDefault.apply(null));
+        assertEquals("", delimitSlash.apply(null));
     }
 }

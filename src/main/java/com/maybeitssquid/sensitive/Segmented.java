@@ -15,8 +15,7 @@ public class Segmented<T> extends Sensitive<T[]> {
      * Creates a new Segmented container with the specified array.
      * The array is cloned to prevent external mutation.
      *
-     * @param contained the array of sensitive values; must not be {@code null}
-     * @throws NullPointerException if contained is {@code null}
+     * @param contained the array of sensitive values
      */
     public Segmented(final T[] contained) {
         super(contained == null ? null : contained.clone());
@@ -26,11 +25,12 @@ public class Segmented<T> extends Sensitive<T[]> {
      * Returns a clone of the contained array to prevent external mutation.
      * This override provides additional protection for array-backed sensitive data.
      *
-     * @return a clone of the contained array
+     * @return a clone of the contained array, or {@code null} if the contained value is null
      */
     @Override
     protected final T[] getContained() {
-        return super.getContained().clone();
+        final T[] value = this.contained.get();
+        return value == null ? null : value.clone();
     }
 
     /**
@@ -41,7 +41,7 @@ public class Segmented<T> extends Sensitive<T[]> {
      */
     @Override
     public int hashCode() {
-        return Arrays.hashCode(super.getContained());
+        return Arrays.hashCode(this.contained.get());
     }
 
     /**
@@ -58,6 +58,6 @@ public class Segmented<T> extends Sensitive<T[]> {
 
         Segmented<?> segmented = (Segmented<?>) o;
 
-        return Arrays.equals(super.getContained(), segmented.getContained());
+        return Arrays.equals(this.contained.get(), segmented.contained.get());
     }
 }

@@ -145,6 +145,7 @@ public class RegexRedactors {
         final Pattern pattern = Pattern.compile(redactable == null || redactable.isEmpty() ? "." : redactable);
 
         return (p, cs) -> {
+            if (cs == null) return "";
             final Matcher m = pattern.matcher(cs);
 
             // count redactable segments
