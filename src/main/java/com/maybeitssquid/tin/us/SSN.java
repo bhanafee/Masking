@@ -2,7 +2,6 @@ package com.maybeitssquid.tin.us;
 
 import com.maybeitssquid.tin.InvalidTINException;
 
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,20 +59,10 @@ public final class SSN extends UsTIN {
 
     public SSN(final int area, final int group, final int serial) {
         this(
-                validateIntSegment(area, 1, 999, "area"),
-                validateIntSegment(group, 1, 99, "group"),
-                validateIntSegment(serial, 1, 9999, "serial")
+                validateIntSegment(area, 999, "SSN", "area"),
+                validateIntSegment(group, 99, "SSN", "group"),
+                validateIntSegment(serial, 9999, "SSN", "serial")
         );
-    }
-
-    private static String validateIntSegment(final int value, final int min, final int max, final String name) {
-        if (value < min || value > max) {
-            throw new InvalidTINException(
-                    String.format("Invalid SSN %s: expected range %d-%d", name, min, max)
-            );
-        }
-        final int width = String.valueOf(max).length();
-        return String.format(Locale.US, "%0" + width + "d", value);
     }
 
     public SSN(final CharSequence value) {

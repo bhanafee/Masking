@@ -30,4 +30,14 @@ abstract public class UsTIN extends Segmented<CharSequence> implements NationalT
             default -> throw new InvalidTINException("Cannot identify TIN format (length: " + raw.length() + ")");
         };
     }
+
+    protected static String validateIntSegment(final int value, final int max, final String tinType, final String name) {
+        if (value < 1 || value > max) {
+            throw new InvalidTINException(
+                    String.format("Invalid %s %s: expected range %d-%d", tinType, name, 1, max)
+            );
+        }
+        final int width = String.valueOf(max).length();
+        return String.format(Locale.US, "%0" + width + "d", value);
+    }
 }
