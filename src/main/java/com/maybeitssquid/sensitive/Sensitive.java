@@ -97,26 +97,26 @@ import java.util.function.Supplier;
 @SuppressWarnings("unused")
 public class Sensitive<T> implements Formattable {
 
-    protected final Supplier<T> contained;
+    private final Supplier<T> supplier;
 
     /**
      * Creates a new Sensitive container with the specified supplier.
      *
-     * @param contained the supplier providing the sensitive value; must not be {@code null}
+     * @param supplier the supplier providing the sensitive value; must not be {@code null}
      * @throws NullPointerException if contained is {@code null}
      */
-    public Sensitive(final Supplier<T> contained) {
-        if (contained == null) throw new NullPointerException("Sensitive value supplier cannot be null");
-        this.contained = contained;
+    public Sensitive(final Supplier<T> supplier) {
+        if (supplier == null) throw new NullPointerException("Sensitive value supplier cannot be null");
+        this.supplier = supplier;
     }
 
     /**
      * Convenience constructor that wraps the value in a {@link DoNotSerialize} supplier.
      *
-     * @param contained the sensitive value to wrap
+     * @param value the sensitive value to wrap
      */
-    public Sensitive(final T contained) {
-        this(new DoNotSerialize<>(contained));
+    public Sensitive(final T value) {
+        this(new DoNotSerialize<>(value));
     }
 
     /**
@@ -154,9 +154,8 @@ public class Sensitive<T> implements Formattable {
     }
 
     /**
-     * Returns the contained sensitive value. Subclasses may access this to implement
-     * custom behavior. Subclasses may override to provide additional protection (e.g., cloning arrays).
-     * Use with caution to avoid exposing sensitive data.
+     * Returns the sensitive value. Subclasses may access this to implement custom behavior. Subclasses may override to
+     * provide additional protection (e.g., cloning arrays). Use with caution to avoid exposing sensitive data.
      *
      * <p><b>Security Note:</b> This method provides direct access to sensitive data for subclass
      * implementation purposes. Avoid calling this method from public APIs or in contexts where
@@ -164,8 +163,8 @@ public class Sensitive<T> implements Formattable {
      *
      * @return the contained sensitive value, or {@code null} if deserialized
      */
-    protected T getContained() {
-        return contained.get();
+    protected T getValue() {
+        return supplier.get();
     }
 
     /**
@@ -190,7 +189,7 @@ public class Sensitive<T> implements Formattable {
         final boolean upper = ((flags & FormattableFlags.UPPERCASE) == FormattableFlags.UPPERCASE);
         final boolean left = ((flags & FormattableFlags.LEFT_JUSTIFY) == FormattableFlags.LEFT_JUSTIFY);
 
-        final CharSequence redacted = getRenderer().apply(this.contained.get(), precision, alternate);
+        final CharSequence redacted = getRenderer().apply(this.supplier.get(), precision, alternate);
 
         formatter.format(residualFormat(width, left, upper), redacted);
     }
@@ -213,7 +212,7 @@ public class Sensitive<T> implements Formattable {
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.contained.get());
+        return Objects.hashCode(this.supplier.get());
     }
 
     /**
@@ -229,6 +228,6 @@ public class Sensitive<T> implements Formattable {
 
         Sensitive<?> sensitive = (Sensitive<?>) o;
 
-        return Objects.equals(this.contained.get(), sensitive.contained.get());
+        return Objects.equals(this.supplier.get(), sensitive.supplier.get());
     }
 }

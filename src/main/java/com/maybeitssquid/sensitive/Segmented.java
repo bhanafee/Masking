@@ -28,8 +28,8 @@ public class Segmented<T> extends Sensitive<T[]> {
      * @return a clone of the contained array, or {@code null} if the contained value is null
      */
     @Override
-    protected final T[] getContained() {
-        final T[] value = this.contained.get();
+    protected final T[] getValue() {
+        final T[] value = super.getValue();
         return value == null ? null : value.clone();
     }
 
@@ -41,7 +41,8 @@ public class Segmented<T> extends Sensitive<T[]> {
      */
     @Override
     public int hashCode() {
-        return Arrays.hashCode(this.contained.get());
+        // Use super.getValue() to avoid the clone
+        return Arrays.hashCode(super.getValue());
     }
 
     /**
@@ -58,6 +59,7 @@ public class Segmented<T> extends Sensitive<T[]> {
 
         Segmented<?> segmented = (Segmented<?>) o;
 
-        return Arrays.equals(this.contained.get(), segmented.contained.get());
+        // Use super.getValue() to avoid a clone
+        return Arrays.equals(super.getValue(), segmented.getValue());
     }
 }

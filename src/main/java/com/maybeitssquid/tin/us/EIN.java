@@ -58,10 +58,10 @@ public final class EIN extends UsTIN {
     }
 
     public CharSequence getPrefix() {
-        return getContained()[0];
+        return getValue()[0];
     }
 
     public CharSequence getSerial() {
-        return getContained()[1];
+        return getValue()[1];
     }
 }

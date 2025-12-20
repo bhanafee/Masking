@@ -70,14 +70,14 @@ public final class SSN extends UsTIN {
     }
 
     public CharSequence getArea() {
-        return getContained()[0];
+        return getValue()[0];
     }
 
     public CharSequence getGroup() {
-        return getContained()[1];
+        return getValue()[1];
     }
 
     public CharSequence getSerial() {
-        return getContained()[2];
+        return getValue()[2];
     }
 }
