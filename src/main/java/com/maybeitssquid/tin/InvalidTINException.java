@@ -1,4 +1,4 @@
-package com.maybeitssquid.tin.us;
+package com.maybeitssquid.tin;
 
 /**
  * Exception thrown when a TIN (SSN or EIN) cannot be parsed or is invalid.

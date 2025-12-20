@@ -1,18 +1,26 @@
 package com.maybeitssquid.tin.us;
 
-import com.maybeitssquid.sensitive.Sensitive;
+import com.maybeitssquid.sensitive.Segmented;
+import com.maybeitssquid.tin.InvalidTINException;
+import com.maybeitssquid.tin.NationalTIN;
 
-abstract public class TIN extends Sensitive<String[]> {
+import java.util.Locale;
 
-    public TIN(final String... raw) {
+abstract public class UsTIN extends Segmented<CharSequence> implements NationalTIN {
+    public UsTIN(final String... raw) {
         super(raw);
     }
 
-    public static TIN create(final CharSequence raw) {
+    public static UsTIN create(final CharSequence raw) {
         return create(raw, false);
     }
 
-    public static TIN create(final CharSequence raw, final boolean preferEIN) {
+    @Override
+    public Locale issuer() {
+        return Locale.US;
+    }
+
+    public static UsTIN create(final CharSequence raw, final boolean preferEIN) {
         if (raw == null) throw new InvalidTINException("Cannot create a TIN from null");
         else return switch (raw.length()) {
             case 0 -> throw new InvalidTINException("Cannot parse empty TIN");

@@ -1,5 +1,7 @@
 package com.maybeitssquid.tin.us;
 
+import com.maybeitssquid.tin.InvalidTINException;
+
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,7 +10,7 @@ import java.util.regex.Pattern;
  * Container for an Employer Identification number.
  * This class is final to prevent subclasses from undermining the security protections.
  */
-public final class EIN extends TIN {
+public final class EIN extends UsTIN {
     public static final String EIN_REGEX = "(?<prefix>\\d{2})-(?<serial>\\d{7})";
 
     private static final Pattern EIN_PATTERN = Pattern.compile(EIN_REGEX);
@@ -65,11 +67,11 @@ public final class EIN extends TIN {
         super(parse(value));
     }
 
-    public String getPrefix() {
+    public CharSequence getPrefix() {
         return getContained()[0];
     }
 
-    public String getSerial() {
+    public CharSequence getSerial() {
         return getContained()[1];
     }
 }

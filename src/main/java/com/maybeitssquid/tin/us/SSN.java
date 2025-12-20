@@ -1,5 +1,7 @@
 package com.maybeitssquid.tin.us;
 
+import com.maybeitssquid.tin.InvalidTINException;
+
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,7 +10,7 @@ import java.util.regex.Pattern;
  * Container for an SSN or ITIN.
  * This class is final to prevent subclasses from undermining the security protections.
  */
-public final class SSN extends TIN {
+public final class SSN extends UsTIN {
 
     public static final String SSN_REGEX = "(?<area>\\d{3})-(?<group>\\d{2})-(?<serial>\\d{4})";
 
@@ -40,21 +42,27 @@ public final class SSN extends TIN {
         }
         if (!area.matches("\\d{3}")) {
             throw new InvalidTINException("Invalid SSN area number: expected 3 digits (length: " + area.length() + ")");
+        } else if ("000".equals(area)) {
+            throw new InvalidTINException("Invalid SSN area number: cannot be 000");
         }
         if (!group.matches("\\d{2}")) {
             throw new InvalidTINException("Invalid SSN group number: expected 2 digits (length: " + group.length() + ")");
+        } else if ("00".equals(group)) {
+            throw new InvalidTINException("Invalid SSN group number: cannot be 00");
         }
         if (!serial.matches("\\d{4}")) {
             throw new InvalidTINException("Invalid SSN serial number: expected 4 digits (length: " + serial.length() + ")");
+        } else if ("0000".equals(serial)) {
+            throw new InvalidTINException("Invalid SSN serial number: cannot be 0000");
         }
         return new String[]{area, group, serial};
     }
 
     public SSN(final int area, final int group, final int serial) {
         this(
-                validateIntSegment(area, 0, 999, "area"),
-                validateIntSegment(group, 0, 99, "group"),
-                validateIntSegment(serial, 0, 9999, "serial")
+                validateIntSegment(area, 1, 999, "area"),
+                validateIntSegment(group, 1, 99, "group"),
+                validateIntSegment(serial, 1, 9999, "serial")
         );
     }
 
@@ -72,15 +80,15 @@ public final class SSN extends TIN {
         super(parse(value));
     }
 
-    public String getArea() {
+    public CharSequence getArea() {
         return getContained()[0];
     }
 
-    public String getGroup() {
+    public CharSequence getGroup() {
         return getContained()[1];
     }
 
-    public String getSerial() {
+    public CharSequence getSerial() {
         return getContained()[2];
     }
 }
