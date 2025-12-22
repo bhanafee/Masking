@@ -148,8 +148,7 @@ public class Sensitive<T> implements Formattable {
      * @return the renderer for this sensitive value; never {@code null}
      */
     protected Renderer<T> getRenderer() {
-        // TODO: replace ignored with _ when JEP 443 "unnamed variable" is available
-        return (ignored, precision ) -> "";
+        return Renderer.empty();
     }
 
     /**

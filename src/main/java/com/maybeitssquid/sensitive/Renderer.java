@@ -48,4 +48,12 @@ public interface Renderer<T> {
      * @return the rendered (possibly redacted) representation
      */
     CharSequence apply(T t, int precision);
+
+    /**
+     * Returns a renderer that always returns an empty string.
+     * @return a renderer that always returns an empty string.
+     */
+    static <T> Renderer<T> empty() {
+        return (t, p) -> "";
+    }
 }
