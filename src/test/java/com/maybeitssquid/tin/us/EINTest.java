@@ -7,31 +7,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class EINTest {
 
-    @Test
-    void parseValid() {
-        String[] parsed = EIN.parse("12-3456789");
-        assertArrayEquals(new String[]{"12", "3456789"}, parsed);
-    }
-
-    @Test
-    void parseNull() {
-        assertThrows(InvalidTINException.class, () -> EIN.parse(null));
-    }
 
     @Test
     void parseInvalidFormat() {
-        assertThrows(InvalidTINException.class, () -> EIN.parse("123456789"));
-        assertThrows(InvalidTINException.class, () -> EIN.parse("1-23456789"));
-        assertThrows(InvalidTINException.class, () -> EIN.parse("123-456789"));
-        assertThrows(InvalidTINException.class, () -> EIN.parse("12-345678"));
-        assertThrows(InvalidTINException.class, () -> EIN.parse(""));
-        assertThrows(InvalidTINException.class, () -> EIN.parse("ab-cdefghi"));
+        assertThrows(InvalidTINException.class, () -> new EIN(null));
+        assertThrows(InvalidTINException.class, () -> new EIN("123456789"));
+        assertThrows(InvalidTINException.class, () -> new EIN("1-23456789"));
+        assertThrows(InvalidTINException.class, () -> new EIN("123-456789"));
+        assertThrows(InvalidTINException.class, () -> new EIN("12-345678"));
+        assertThrows(InvalidTINException.class, () -> new EIN(""));
+        assertThrows(InvalidTINException.class, () -> new EIN("ab-cdefghi"));
     }
 
     @Test
     void constructFromStrings() {
         EIN ein = new EIN("12", "3456789");
-        assertEquals("12", ein.getPrefix());
+        assertEquals("12", ein.getCampus());
         assertEquals("3456789", ein.getSerial());
     }
 
@@ -58,14 +49,14 @@ class EINTest {
     @Test
     void constructFromInts() {
         EIN ein = new EIN(12, 3456789);
-        assertEquals("12", ein.getPrefix());
+        assertEquals("12", ein.getCampus());
         assertEquals("3456789", ein.getSerial());
     }
 
     @Test
     void constructFromIntsWithLeadingZeros() {
         EIN ein = new EIN(1, 23);
-        assertEquals("01", ein.getPrefix());
+        assertEquals("01", ein.getCampus());
         assertEquals("0000023", ein.getSerial());
     }
 
@@ -80,7 +71,7 @@ class EINTest {
     @Test
     void constructFromCharSequence() {
         EIN ein = new EIN("12-3456789");
-        assertEquals("12", ein.getPrefix());
+        assertEquals("12", ein.getCampus());
         assertEquals("3456789", ein.getSerial());
     }
 

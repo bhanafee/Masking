@@ -15,10 +15,10 @@ public class Segmented<T> extends Sensitive<T[]> {
      * Creates a new Segmented container with the specified array.
      * The array is cloned to prevent external mutation.
      *
-     * @param contained the array of sensitive values
+     * @param value the array of sensitive values
      */
-    public Segmented(final T[] contained) {
-        super(contained == null ? null : contained.clone());
+    public Segmented(final T[] value) {
+        super(value == null ? null : value.clone());
     }
 
     /**
@@ -29,8 +29,22 @@ public class Segmented<T> extends Sensitive<T[]> {
      */
     @Override
     protected final T[] getValue() {
-        final T[] value = super.getValue();
+        final T[] value = this.supplier.get();
         return value == null ? null : value.clone();
+    }
+
+    /**
+     * Returns the value of the contained array at the specified index. Equivalent to {@code }getValue()[index]},
+     * adding null and bounds checking and avoiding the clone.
+     *
+     * @param index the index into the contained array.
+     * @return the value of the contained array at the specified index, or {@code null} if the contained
+     *      value is null or the index is out of range.
+     */
+    protected final T getValue(final int index) {
+        final T[] value = this.supplier.get();
+        if (value == null || value.length < index + 1) return null;
+        return value[index];
     }
 
     /**
@@ -41,8 +55,7 @@ public class Segmented<T> extends Sensitive<T[]> {
      */
     @Override
     public int hashCode() {
-        // Use super.getValue() to avoid the clone
-        return Arrays.hashCode(super.getValue());
+        return Arrays.hashCode(this.supplier.get());
     }
 
     /**
@@ -57,9 +70,8 @@ public class Segmented<T> extends Sensitive<T[]> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Segmented<?> segmented = (Segmented<?>) o;
+        Segmented<?> other = (Segmented<?>) o;
 
-        // Use super.getValue() to avoid a clone
-        return Arrays.equals(super.getValue(), segmented.getValue());
+        return Arrays.equals(this.supplier.get(), other.supplier.get());
     }
 }

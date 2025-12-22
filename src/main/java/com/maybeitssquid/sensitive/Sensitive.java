@@ -97,7 +97,7 @@ import java.util.function.Supplier;
 @SuppressWarnings("unused")
 public class Sensitive<T> implements Formattable {
 
-    private final Supplier<T> supplier;
+    protected final Supplier<T> supplier;
 
     /**
      * Creates a new Sensitive container with the specified supplier.
@@ -172,7 +172,7 @@ public class Sensitive<T> implements Formattable {
      *
      * @param width the minimum width of the output
      * @param left  whether the output should be left-justified
-     * @param upper whether the output should be converted to upper case
+     * @param upper whether the output should be converted to uppercase
      * @return a format string
      */
     protected String residualFormat(final int width, final boolean left, final boolean upper) {
@@ -226,8 +226,8 @@ public class Sensitive<T> implements Formattable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Sensitive<?> sensitive = (Sensitive<?>) o;
+        Sensitive<?> other = (Sensitive<?>) o;
 
-        return Objects.equals(this.supplier.get(), sensitive.supplier.get());
+        return Objects.equals(this.supplier.get(), other.supplier.get());
     }
 }

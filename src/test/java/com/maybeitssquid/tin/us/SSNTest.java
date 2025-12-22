@@ -7,25 +7,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SSNTest {
 
-    @Test
-    void parseValid() {
-        String[] parsed = SSN.parse("123-45-6789");
-        assertArrayEquals(new String[]{"123", "45", "6789"}, parsed);
-    }
-
-    @Test
-    void parseNull() {
-        assertThrows(InvalidTINException.class, () -> SSN.parse(null));
-    }
 
     @Test
     void parseInvalidFormat() {
-        assertThrows(InvalidTINException.class, () -> SSN.parse("123456789"));
-        assertThrows(InvalidTINException.class, () -> SSN.parse("12-345-6789"));
-        assertThrows(InvalidTINException.class, () -> SSN.parse("1234-5-6789"));
-        assertThrows(InvalidTINException.class, () -> SSN.parse("123-45-678"));
-        assertThrows(InvalidTINException.class, () -> SSN.parse(""));
-        assertThrows(InvalidTINException.class, () -> SSN.parse("abc-de-fghi"));
+        assertThrows(InvalidTINException.class, () -> new SSN(null));
+        assertThrows(InvalidTINException.class, () -> new SSN("123456789"));
+        assertThrows(InvalidTINException.class, () -> new SSN("12-345-6789"));
+        assertThrows(InvalidTINException.class, () -> new SSN("1234-5-6789"));
+        assertThrows(InvalidTINException.class, () -> new SSN("123-45-678"));
+        assertThrows(InvalidTINException.class, () -> new SSN(""));
+        assertThrows(InvalidTINException.class, () -> new SSN("abc-de-fghi"));
     }
 
     @Test

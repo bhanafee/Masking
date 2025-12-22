@@ -5,19 +5,83 @@ import com.maybeitssquid.tin.InvalidTINException;
 import com.maybeitssquid.tin.NationalTIN;
 
 import java.util.Locale;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 abstract public class UsTIN extends Segmented<CharSequence> implements NationalTIN {
-    public UsTIN(final String... raw) {
-        super(raw);
+    public record Segment (String name, int length) {
+        public Segment {
+            Objects.requireNonNull(name, "Segment name must not be null");
+            if (name.isBlank()) throw new IllegalArgumentException("Segment name must not be blank");
+            if (length < 1 || length > 9) throw new IllegalArgumentException("Segment length must be in the range 1-9");
+        }
+        private int min() {
+            return 1;
+        }
+        private int max() {
+            return switch (length) {
+                case 1 -> 9;
+                case 2 -> 99;
+                case 3 -> 999;
+                case 4 -> 9999;
+                case 5 -> 99999;
+                case 6 -> 999999;
+                case 7 -> 9999999;
+                case 8 -> 99999999;
+                case 9 -> 999999999;
+                default -> 0;
+            };
+        }
+        public String validate(final int value) {
+            if (value < min() || value > max()) throw new InvalidTINException(
+                    String.format("Invalid %s: expected range %d-%d", name, min(), max())
+            );
+            return String.format("%0" + length + "d", value);
+        }
+        public String validate(final CharSequence value) {
+            if (value == null) throw new InvalidTINException(String.format("Segment %s cannot be null", name));
+            if (!value.toString().matches(regex())) throw new InvalidTINException(String.format("Invalid %s segment: expected %d digits (length: %d)", name,length, value.length()));
+            return value.toString();
+        }
+        public String regex() {
+            return String.format("(?<%s>\\d{%d})", name, length);
+        }
+    }
+
+    public static String[] validateSegments(final Segment[] expected, final CharSequence... segments) {
+        assert expected != null;
+        if (segments == null || segments.length != expected.length) throw new InvalidTINException("Missing or too many TIN segments");
+        final String[] validated = new String[expected.length];
+        for (int i = 0; i < expected.length; i++) {
+            validated[i] = expected[i].validate(segments[i]);
+        }
+        return validated;
+    }
+
+    public static String[] validateIntSegments(final Segment[] expected, final int... segments) {
+        assert expected != null;
+        if (segments == null || segments.length != expected.length) throw new InvalidTINException("Missing or too many TIN segments");
+        final String[] validated = new String[expected.length];
+        for (int i = 0; i < expected.length; i++) {
+            validated[i] = expected[i].validate(segments[i]);
+        }
+        return validated;
+    }
+
+    public static String[] parse(final Pattern expected, final CharSequence value) {
+        if (value == null) throw new InvalidTINException("Value cannot be null");
+        final Matcher matcher = expected.matcher(value);
+        if (!matcher.matches()) throw new InvalidTINException("Invalid TIN format");
+        final String[] segments = new String[matcher.groupCount()];
+        for (int i = 0; i < segments.length; i++) {
+            segments[i] = matcher.group(i + 1);
+        }
+        return segments;
     }
 
     public static UsTIN create(final CharSequence raw) {
         return create(raw, false);
-    }
-
-    @Override
-    public Locale issuer() {
-        return Locale.US;
     }
 
     public static UsTIN create(final CharSequence raw, final boolean preferEIN) {
@@ -31,13 +95,12 @@ abstract public class UsTIN extends Segmented<CharSequence> implements NationalT
         };
     }
 
-    protected static String validateIntSegment(final int value, final int max, final String tinType, final String name) {
-        if (value < 1 || value > max) {
-            throw new InvalidTINException(
-                    String.format("Invalid %s %s: expected range %d-%d", tinType, name, 1, max)
-            );
-        }
-        final int width = String.valueOf(max).length();
-        return String.format(Locale.US, "%0" + width + "d", value);
+    public UsTIN(final String... raw) {
+        super(raw);
+    }
+
+    @Override
+    public Locale issuer() {
+        return Locale.US;
     }
 }
