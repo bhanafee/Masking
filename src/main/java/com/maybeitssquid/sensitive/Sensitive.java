@@ -131,7 +131,6 @@ public class Sensitive<T> implements Formattable {
      * <pre>{@code
      * public class MaskedValue extends Sensitive<String> {
      *     private static final Renderer<String> RENDERER = (value, precision, alternate) -> {
-     *         if (alternate) return value;
      *         return value.substring(0, Math.min(precision, value.length())) + "***";
      *     };
      *
@@ -150,7 +149,18 @@ public class Sensitive<T> implements Formattable {
      */
     protected Renderer<T> getRenderer() {
         // TODO: replace ignored with _ when JEP 443 "unnamed variable" is available
-        return (ignored, precision, alternate) -> "";
+        return (ignored, precision ) -> "";
+    }
+
+    /**
+     * Returns the renderer used to format this sensitive value when the alternate form is specified. The default
+     * implementation is a passthrough to {@link #getRenderer()}. Override this method to provide an alternate
+     * rendition for {code String.format("%#s", this)}
+     *
+     * @return the alternate renderer for this sensitive value; never {@code null}
+     */
+    protected Renderer<T> getAltRenderer() {
+        return getRenderer();
     }
 
     /**
@@ -189,7 +199,7 @@ public class Sensitive<T> implements Formattable {
         final boolean upper = ((flags & FormattableFlags.UPPERCASE) == FormattableFlags.UPPERCASE);
         final boolean left = ((flags & FormattableFlags.LEFT_JUSTIFY) == FormattableFlags.LEFT_JUSTIFY);
 
-        final CharSequence redacted = getRenderer().apply(this.supplier.get(), precision, alternate);
+        final CharSequence redacted = getRenderer().apply(this.supplier.get(), precision);
 
         formatter.format(residualFormat(width, left, upper), redacted);
     }

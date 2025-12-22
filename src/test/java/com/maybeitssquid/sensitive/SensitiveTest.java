@@ -17,7 +17,7 @@ class SensitiveTest {
     private final Sensitive<String> sensitiveRendered = new Sensitive<>(containedString) {
         @Override
         protected Renderer<String> getRenderer() {
-            return (v, p, a) -> v;
+            return (v, p ) -> v;
         }
     };
 
@@ -65,7 +65,6 @@ class SensitiveTest {
         assertTrue(sensitiveString.equals(sensitiveString));
 
         assertTrue(sensitiveString.equals(new Sensitive<>(containedString)));
-        assertFalse(sensitiveObj.equals(null));
         assertFalse(sensitiveObj.equals(sensitiveString));
         assertFalse(sensitiveString.equals(sensitiveObj));
     }

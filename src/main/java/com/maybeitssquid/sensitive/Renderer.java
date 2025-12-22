@@ -13,21 +13,12 @@ package com.maybeitssquid.sensitive;
  * </ul>
  * Note: Higher precision values show MORE data, not less. Precision=0 typically shows no data.
  *
- * <h2>Alternate Flag</h2>
- * The alternate flag provides an alternative rendering mode:
- * <ul>
- *     <li>{@code alternate = false}: Standard redacted rendering</li>
- *     <li>{@code alternate = true}: Alternative rendering (implementation-defined, often fully unredacted)</li>
- * </ul>
- * The alternate flag is triggered by the '#' flag in format strings (e.g., {@code "%#s"}).
- *
  * <h2>Usage</h2>
  * Renderers are typically used by subclasses of {@link Sensitive} that override
  * {@link Sensitive#getRenderer()} to provide a shared renderer instance:
  * <pre>{@code
  * public class SecretCode extends Sensitive<String> {
- *     private static final Renderer<String> RENDERER = (value, precision, alternate) -> {
- *         if (alternate) return value;
+ *     private static final Renderer<String> RENDERER = (value, precision) -> {
  *         return "***";
  *     };
  *
@@ -46,17 +37,15 @@ package com.maybeitssquid.sensitive;
  * @see Sensitive
  * @see Sensitive#getRenderer()
  * @see java.util.Formattable
- * @see java.util.FormattableFlags#ALTERNATE
  */
 @FunctionalInterface
 public interface Renderer<T> {
     /**
-     * Renders the contained data with appropriate redaction.
+     * Renders data with the appropriate redaction.
      *
      * @param t         the data to render
      * @param precision the number of unredacted segments to show (or -1 for default)
-     * @param alternate whether to use alternate rendering mode
      * @return the rendered (possibly redacted) representation
      */
-    CharSequence apply(T t, int precision, boolean alternate);
+    CharSequence apply(T t, int precision);
 }

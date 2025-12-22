@@ -12,7 +12,7 @@ class SegmentedTest {
     private final String[] single = new String[] {"test"};
     private final String[] multiple = new String[] {"segmented", "test", "case"};
 
-    private final Renderer<String[]> renderer = (v, p, a) -> String.join(" ", v);
+    private final Renderer<String[]> renderer = (v, p ) -> String.join(" ", v);
 
     private final Segmented<String> emptySegment = new Segmented<>(empty) {
         @Override
