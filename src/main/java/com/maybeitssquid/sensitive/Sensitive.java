@@ -54,6 +54,10 @@ import java.util.function.Supplier;
  *
  * // Custom supplier for alternative storage strategies
  * Sensitive<String> custom = new Sensitive<>(() -> retrieveFromSecureStore());
+ *
+ * // Lambda returning a constant: value WILL survive serialization
+ * // Use this when you need the object to be serializable
+ * Sensitive<String> serializable = new Sensitive<>(() -> "secret");
  * }</pre>
  *
  * <h2>Serialization Protection</h2>
@@ -97,6 +101,10 @@ import java.util.function.Supplier;
 @SuppressWarnings("unused")
 public class Sensitive<T> implements Formattable {
 
+    /**
+     * The supplier that provides the sensitive value. Using a supplier allows flexible
+     * storage strategies, including protection against serialization via {@link DoNotSerialize}.
+     */
     protected final Supplier<T> supplier;
 
     /**
@@ -152,9 +160,29 @@ public class Sensitive<T> implements Formattable {
     }
 
     /**
-     * Returns the renderer used to format this sensitive value when the alternate form is specified. The default
-     * implementation is a passthrough to {@link #getRenderer()}. Override this method to provide an alternate
-     * rendition for {code String.format("%#s", this)}
+     * Returns the renderer used to format this sensitive value when the alternate form is specified.
+     *
+     * <p>The default implementation delegates to {@link #getRenderer()}. Override this method to
+     * provide an alternate rendition when using {@code String.format("%#s", this)}, such as
+     * showing the unredacted value for administrative contexts.
+     *
+     * <h3>Example</h3>
+     * <pre>{@code
+     * public class AdminViewableSecret extends Sensitive<String> {
+     *     private static final Renderer<String> MASKED = Renderers.masked();
+     *     private static final Renderer<String> UNMASKED = Renderers.unredacted();
+     *
+     *     @Override
+     *     protected Renderer<String> getRenderer() { return MASKED; }
+     *
+     *     @Override
+     *     protected Renderer<String> getAltRenderer() { return UNMASKED; }
+     * }
+     *
+     * AdminViewableSecret secret = new AdminViewableSecret("password123");
+     * String.format("%s", secret);   // Returns "#######123" (masked)
+     * String.format("%#s", secret);  // Returns "password123" (unredacted)
+     * }</pre>
      *
      * @return the alternate renderer for this sensitive value; never {@code null}
      */
@@ -192,6 +220,18 @@ public class Sensitive<T> implements Formattable {
                 upper ? "S" : "s");
     }
 
+    /**
+     * Formats this sensitive value according to the specified flags, width, and precision.
+     *
+     * <p>The rendering behavior is determined by the {@link Renderer} returned by
+     * {@link #getRenderer()} or {@link #getAltRenderer()} (when the alternate flag is set).
+     * Width, left-justification, and uppercase flags are applied after rendering.
+     *
+     * @param formatter the formatter to write to
+     * @param flags     formatting flags (see {@link FormattableFlags})
+     * @param width     the minimum number of characters; -1 for no minimum
+     * @param precision passed to the renderer to control redaction; -1 for default
+     */
     @Override
     public void formatTo(Formatter formatter, int flags, int width, int precision) {
         final boolean alternate = (flags & FormattableFlags.ALTERNATE) == FormattableFlags.ALTERNATE;
