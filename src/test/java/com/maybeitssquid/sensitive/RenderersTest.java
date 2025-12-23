@@ -189,40 +189,40 @@ class RenderersTest {
     class RedactMethod {
         @Test
         void withNegativePrecisionReturnsHalfRoundedUp() {
-            assertEquals(3, Renderers.redact(-1, 6));
-            assertEquals(3, Renderers.redact(-1, 5));
-            assertEquals(2, Renderers.redact(-1, 4));
-            assertEquals(2, Renderers.redact(-1, 3));
-            assertEquals(1, Renderers.redact(-1, 2));
-            assertEquals(1, Renderers.redact(-1, 1));
-            assertEquals(0, Renderers.redact(-1, 0));
+            assertEquals(3, Renderers.redactions(-1, 6));
+            assertEquals(3, Renderers.redactions(-1, 5));
+            assertEquals(2, Renderers.redactions(-1, 4));
+            assertEquals(2, Renderers.redactions(-1, 3));
+            assertEquals(1, Renderers.redactions(-1, 2));
+            assertEquals(1, Renderers.redactions(-1, 1));
+            assertEquals(0, Renderers.redactions(-1, 0));
         }
 
         @Test
         void withZeroPrecisionReturnsFullLength() {
-            assertEquals(6, Renderers.redact(0, 6));
+            assertEquals(6, Renderers.redactions(0, 6));
         }
 
         @Test
         void withPositivePrecisionReturnsLengthMinusPrecision() {
-            assertEquals(4, Renderers.redact(2, 6));
-            assertEquals(2, Renderers.redact(4, 6));
+            assertEquals(4, Renderers.redactions(2, 6));
+            assertEquals(2, Renderers.redactions(4, 6));
         }
 
         @Test
         void withPrecisionExceedingLengthReturnsZero() {
-            assertEquals(0, Renderers.redact(10, 6));
+            assertEquals(0, Renderers.redactions(10, 6));
         }
 
         @Test
         void withNegativeLengthThrows() {
-            assertThrows(IllegalArgumentException.class, () -> Renderers.redact(0, -1));
+            assertThrows(IllegalArgumentException.class, () -> Renderers.redactions(0, -1));
         }
 
         @Test
         void negativeLengthExceptionMessageIsDescriptive() {
             IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> Renderers.redact(0, -5));
+                () -> Renderers.redactions(0, -5));
             assertTrue(ex.getMessage().contains("-5"));
         }
     }

@@ -34,7 +34,7 @@ public class Segmented<T> extends Sensitive<T[]> {
     }
 
     /**
-     * Returns the value of the contained array at the specified index. Equivalent to {@code }getValue()[index]},
+     * Returns the value of the contained array at the specified index. Equivalent to {@code getValue()[index]},
      * adding null and bounds checking and avoiding the clone.
      *
      * @param index the index into the contained array.
@@ -43,8 +43,7 @@ public class Segmented<T> extends Sensitive<T[]> {
      */
     protected final T getValue(final int index) {
         final T[] value = this.supplier.get();
-        if (value == null || value.length < index + 1) return null;
-        return value[index];
+        return value == null ? null : value[index];
     }
 
     /**

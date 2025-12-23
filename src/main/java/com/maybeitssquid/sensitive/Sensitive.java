@@ -106,11 +106,12 @@ public class Sensitive<T> implements Formattable {
     /**
      * Creates a new Sensitive container with the specified supplier.
      *
-     * @param supplier the supplier providing the sensitive value; must not be {@code null}
+     * @param supplier the supplier providing the sensitive value; must not be {@code null}. The supplier is expected
+     *                 to return the same value every time.
      * @throws NullPointerException if contained is {@code null}
      */
     public Sensitive(final Supplier<T> supplier) {
-        if (supplier == null) throw new NullPointerException("Sensitive value supplier cannot be null");
+        Objects.requireNonNull(supplier, "Sensitive value supplier cannot be null");
         this.supplier = supplier;
     }
 
@@ -158,7 +159,8 @@ public class Sensitive<T> implements Formattable {
      *
      * <p>The default implementation delegates to {@link #getRenderer()}. Override this method to
      * provide an alternate rendition when using {@code String.format("%#s", this)}, such as
-     * showing the unredacted value for administrative contexts.
+     * showing the unredacted value for administrative contexts or showing the value in a commonly
+     * used human-readable form.
      *
      * <h3>Example</h3>
      * <pre>{@code
@@ -173,9 +175,9 @@ public class Sensitive<T> implements Formattable {
      *     protected Renderer<String> getAltRenderer() { return UNMASKED; }
      * }
      *
-     * AdminViewableSecret secret = new AdminViewableSecret("password123");
-     * String.format("%s", secret);   // Returns "#######123" (masked)
-     * String.format("%#s", secret);  // Returns "password123" (unredacted)
+     * AdminViewableSecret secret = new AdminViewableSecret("secret123");
+     * String.format("%s", secret);   // Returns "#####t123" (masked)
+     * String.format("%#s", secret);  // Returns "secret123" (unredacted)
      * }</pre>
      *
      * @return the alternate renderer for this sensitive value; never {@code null}
@@ -233,6 +235,7 @@ public class Sensitive<T> implements Formattable {
         final boolean left = ((flags & FormattableFlags.LEFT_JUSTIFY) == FormattableFlags.LEFT_JUSTIFY);
 
         final Renderer<T> renderer = alternate ? getAltRenderer() : getRenderer();
+        Objects.requireNonNull(renderer, "Unexpected null renderer");
         final CharSequence redacted = renderer.apply(this.supplier.get(), precision);
 
         formatter.format(residualFormat(width, left, upper), redacted);

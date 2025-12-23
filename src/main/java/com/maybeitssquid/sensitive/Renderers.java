@@ -1,6 +1,5 @@
 package com.maybeitssquid.sensitive;
 
-import java.nio.CharBuffer;
 import java.util.function.IntPredicate;
 
 /**
@@ -44,10 +43,11 @@ import java.util.function.IntPredicate;
  * @see Sensitive#getAltRenderer()
  */
 public class Renderers {
+
     /**
      * Default replacement character for masking.
      */
-    public static final Character DEFAULT_MASK = '#';
+    public static final char DEFAULT_MASK = '#';
 
     /**
      * Returns a renderer that shows the value completely unredacted.
@@ -56,7 +56,7 @@ public class Renderers {
      * @return a renderer that returns the input unchanged
      */
     public static <T extends CharSequence> Renderer<T> unredacted() {
-        return (cs, p) -> cs;
+        return (cs, p) -> cs == null ? "" : cs;
     }
 
     /**
@@ -70,21 +70,7 @@ public class Renderers {
      * @return a renderer that truncates leading characters
      */
     public static <T extends CharSequence> Renderer<T> truncated() {
-        return (cs, p) -> cs.subSequence(Renderers.redact(p, cs.length()), cs.length());
-    }
-
-    /**
-     * Returns a renderer that masks leading characters with the {@link #DEFAULT_MASK} character.
-     *
-     * <p>If precision is negative, masks the first half of the characters (rounded up).
-     * Otherwise, masks all but the last {@code precision} characters.
-     *
-     * @param <T> the type of CharSequence to render
-     * @return a renderer that masks leading characters with '#'
-     * @see #masked(char)
-     */
-    public static <T extends CharSequence> Renderer<T> masked() {
-        return masked(DEFAULT_MASK);
+        return (cs, p) -> cs == null ? "" : cs.subSequence(Renderers.redactions(p, cs.length()), cs.length());
     }
 
     /**
@@ -94,31 +80,42 @@ public class Renderers {
      * Otherwise, masks all but the last {@code precision} characters.
      *
      * @param <T>  the type of CharSequence to render
-     * @param mask the character to use for masking
+     * @param maskCodePoint the code point of the character to use for masking
      * @return a renderer that masks leading characters
      */
-    public static <T extends CharSequence> Renderer<T> masked(final char mask) {
-        final String m = Character.toString(mask);
+    public static <T extends CharSequence> Renderer<T> masked(final int maskCodePoint) {
+        final String mask = Character.toString(maskCodePoint);
         return (cs, p) -> {
-            final int redact = Renderers.redact(p, cs.length());
-            return m.repeat(redact) + cs.subSequence(redact, cs.length());
+            if (cs == null) return "";
+            final int redactions = Renderers.redactions(p, cs.length());
+            return mask.repeat(redactions) + cs.subSequence(redactions, cs.length());
         };
     }
 
     /**
-     * Returns a renderer that masks only characters matching the predicate, using the
-     * {@link #DEFAULT_MASK} character.
+     * Convenience function equivalent to {@code masked((int) mask)}.
      *
-     * <p>Characters not matching the predicate (such as delimiters) are preserved in place.
-     * The precision applies only to matching characters.
-     *
-     * @param <T>      the type of CharSequence to render
-     * @param maskable predicate that returns true for characters that should be masked
-     * @return a renderer that selectively masks characters
-     * @see #masked(IntPredicate, char)
+     * @param <T>  the type of CharSequence to render
+     * @param mask the character to use for masking. The character must be on the Basic Multilingual Plane.
+     * @return a renderer that masks leading characters
+     * @throws IllegalArgumentException if the mask is not on the Basic Multilingual Plane.
+     * @see #masked(int) 
      */
-    public static <T extends CharSequence> Renderer<T> masked(IntPredicate maskable) {
-        return masked(maskable, DEFAULT_MASK);
+    public static <T extends CharSequence> Renderer<T> masked(final char mask) {
+        if (Character.isSurrogate(mask))
+            throw new IllegalArgumentException("Use code point to specify a mask value outside the Basic Multilingual Plane");
+        return masked((int) mask);
+    }
+
+    /**
+     * Convenience function equivalent to {@code masked(DEFAULT_MASK)}.
+     *
+     * @param <T> the type of CharSequence to render
+     * @return a renderer that masks leading characters with '#'
+     * @see #masked(int)
+     */
+    public static <T extends CharSequence> Renderer<T> masked() {
+        return masked((int) DEFAULT_MASK);
     }
 
     /**
@@ -129,45 +126,73 @@ public class Renderers {
      * The precision applies only to matching characters. For example, masking an SSN
      * "123-45-6789" with a digit predicate and precision 4 would produce "###-##-6789".
      *
-     * @param <T>      the type of CharSequence to render
-     * @param maskable predicate that returns true for characters that should be masked
-     * @param mask     the character to use for masking
+     * @param <T>         the type of CharSequence to render
+     * @param redactable  predicate that returns true for characters that are candidates for redaction
+     * @param maskCodePoint the code point of the character to use for masking
      * @return a renderer that selectively masks characters
      */
-    public static <T extends CharSequence> Renderer<T> masked(IntPredicate maskable, final char mask) {
+    public static <T extends CharSequence> Renderer<T> masked(IntPredicate redactable, final int maskCodePoint) {
+        final IntPredicate predicate = redactable == null ? c -> true : redactable;
         return (cs, p) -> {
-            final int significant = (int) cs.chars().filter(maskable).count();
-            final int redact = Renderers.redact(p, significant);
-            final CharBuffer buffer = CharBuffer.allocate(cs.length());
-            int pos = 0;
+            if (cs == null) return "";
+            final long significant = cs.codePoints().filter(predicate).count();
+            final int redactions = Renderers.redactions(p, (int) significant);
+            final StringBuilder builder = new StringBuilder(cs.length());
+
             int redacted = 0;
-            while (redacted < redact) {
-                if (maskable.test(cs.charAt(pos))) {
-                    buffer.append(mask);
+            var iterator = cs.codePoints().iterator();
+            while (iterator.hasNext()) {
+                int codePoint = iterator.nextInt();
+                if (redacted < redactions && predicate.test(codePoint)) {
+                    builder.appendCodePoint(maskCodePoint);
                     redacted += 1;
                 } else {
-                    buffer.append(cs.charAt(pos));
+                    builder.appendCodePoint(codePoint);
                 }
-                pos += 1;
             }
-            buffer.append(cs.subSequence(pos, cs.length()));
-            buffer.flip();
-            return buffer.toString();
+            return builder.toString();
         };
     }
 
     /**
-     * Returns a renderer that joins an array of CharSequences and applies the given renderer.
+     * Convenience function equivalent to {@code masked(redactable, (int) mask)}.
      *
-     * <p>The array elements are concatenated without a delimiter before rendering.
-     *
-     * @param <T>      the element type of the CharSequence array
-     * @param renderer the renderer to apply to the joined string
-     * @return a renderer for arrays of CharSequences
-     * @see #join(Renderer, char)
+     * @param <T>         the type of CharSequence to render
+     * @param redactable  predicate that returns true for characters that are candidates for redaction
+     * @param mask        the character to use for masking
+     * @return a renderer that selectively masks characters
      */
-    public static <T extends CharSequence> Renderer<T[]> join(final Renderer<CharSequence> renderer) {
-        return (cs, p) -> renderer.apply(String.join("", cs), p);
+    public static <T extends CharSequence> Renderer<T> masked(IntPredicate redactable, final char mask) {
+        if (Character.isSurrogate(mask))
+            throw new IllegalArgumentException("Use code point to specify a mask value outside the Basic Multilingual Plane");
+        return masked(redactable, (int) mask);
+    }
+
+    /**
+     * Convenience function equivalent to {@code masked(redactable, DEFAULT_MASK}.
+     *
+     * @param <T>      the type of CharSequence to render
+     * @param maskable predicate that returns true for characters that should be masked
+     * @return a renderer that selectively masks characters
+     * @see #masked(IntPredicate, int)
+     */
+    public static <T extends CharSequence> Renderer<T> masked(IntPredicate maskable) {
+        return masked(maskable, (int) DEFAULT_MASK);
+    }
+
+    /**
+     * Returns a renderer that joins an array of CharSequences with a delimiter and applies
+     * the given renderer.
+     *
+     * @param <T>       the element type of the CharSequence array
+     * @param renderer  the renderer to apply to the joined string
+     * @param delimiterCodePoint the character to insert between array elements
+     * @return a renderer for arrays of CharSequences
+     */
+    public static <T extends CharSequence> Renderer<T[]> join(final Renderer<CharSequence> renderer, final int delimiterCodePoint) {
+        if (renderer == null) throw new NullPointerException("Nested renderer is required");
+        final String delimiter = Character.toString(delimiterCodePoint);
+        return (cs, p) -> cs == null ? "" : renderer.apply(String.join(delimiter, cs), p);
     }
 
     /**
@@ -178,21 +203,37 @@ public class Renderers {
      * @param renderer  the renderer to apply to the joined string
      * @param delimiter the character to insert between array elements
      * @return a renderer for arrays of CharSequences
+     * @see #join(Renderer, int)
      */
     public static <T extends CharSequence> Renderer<T[]> join(final Renderer<CharSequence> renderer, final char delimiter) {
-        final String d = Character.toString(delimiter);
-        return (cs, p) -> renderer.apply(String.join(d, cs), p);
+        if (Character.isSurrogate(delimiter))
+            throw new IllegalArgumentException("Use code point to specify a delimiter value outside the Basic Multilingual Plane");
+        return join(renderer, (int) delimiter);
     }
 
     /**
-     * Computes the number of characters to redact. If precision < 0, returns half the length (rounded up),
+     * Returns a renderer that joins an array of CharSequences and applies the given renderer.
+     *
+     * <p>The array elements are concatenated without a delimiter before rendering.
+     *
+     * @param <T>      the element type of the CharSequence array
+     * @param renderer the renderer to apply to the joined string
+     * @return a renderer for arrays of CharSequences
+     */
+    public static <T extends CharSequence> Renderer<T[]> join(final Renderer<CharSequence> renderer) {
+        if (renderer == null) throw new NullPointerException("Nested renderer is required");
+        return (cs, p) -> cs == null ? "" : renderer.apply(String.join("", cs), p);
+    }
+
+    /**
+     * Computes the number of symbols to redact. If precision < 0, returns half the length (rounded up),
      * otherwise returns length - precision.
      *
-     * @param precision the number of unredacted characters requested, or -1 if default is desired.
-     * @param length    the number of characters in the unredacted field.
-     * @return the number of unredacted characters to show.
+     * @param precision the number of unredacted symbols requested, or -1 if default is desired.
+     * @param length    the number of symbols in the unredacted field.
+     * @return the number of unredacted symbols to show.
      */
-    public static int redact(final int precision, final int length) {
+    public static int redactions(final int precision, final int length) {
         if (length < 0) {
             throw new IllegalArgumentException("Length must be >= 0, got " + length);
         } else if (precision < 0) {
