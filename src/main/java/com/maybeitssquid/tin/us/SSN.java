@@ -76,33 +76,4 @@ public final class SSN extends UsTIN {
         super(parse(SSN_PATTERN, value));
     }
 
-    /**
-     * Returns the 3-digit area number.
-     *
-     * @return the area number, or empty string if unavailable
-     */
-    public String getArea() {
-        final CharSequence area = getValue(0);
-        return area == null ? "" : area.toString();
-    }
-
-    /**
-     * Returns the 2-digit group number.
-     *
-     * @return the group number, or empty string if unavailable
-     */
-    public String getGroup() {
-        final CharSequence group = getValue(1);
-        return group == null ? "" : group.toString();
-    }
-
-    /**
-     * Returns the 4-digit serial number.
-     *
-     * @return the serial number, or empty string if unavailable
-     */
-    public String getSerial() {
-        final CharSequence serial = getValue(2);
-        return serial == null ? "" : serial.toString();
-    }
 }

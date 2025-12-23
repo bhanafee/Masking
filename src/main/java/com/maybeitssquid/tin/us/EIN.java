@@ -71,23 +71,4 @@ public final class EIN extends UsTIN {
         super(parse(EIN_PATTERN, value));
     }
 
-    /**
-     * Returns the 2-digit campus code.
-     *
-     * @return the campus code, or empty string if unavailable
-     */
-    public String getCampus() {
-        final CharSequence campus = getValue(0);
-        return campus == null ? "" : campus.toString();
-    }
-
-    /**
-     * Returns the 7-digit serial number.
-     *
-     * @return the serial number, or empty string if unavailable
-     */
-    public String getSerial() {
-        final CharSequence serial = getValue(1);
-        return serial == null ? "" : serial.toString();
-    }
 }
