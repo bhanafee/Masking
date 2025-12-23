@@ -1,6 +1,11 @@
 package com.maybeitssquid.sensitive;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.NotSerializableException;
+import java.io.ObjectOutputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,7 +22,7 @@ class SensitiveTest {
     private final Sensitive<String> sensitiveRendered = new Sensitive<>(containedString) {
         @Override
         protected Renderer<String> getRenderer() {
-            return (v, p ) -> v;
+            return (v, p) -> v;
         }
     };
 
@@ -68,4 +73,35 @@ class SensitiveTest {
         assertFalse(sensitiveObj.equals(sensitiveString));
         assertFalse(sensitiveString.equals(sensitiveObj));
     }
+
+
+    @Nested
+    class DoNotSerializeInterface {
+        @Test
+        void get() {
+            String value = "secret";
+            Sensitive.DoNotSerialize<String> wrapper = new Sensitive.DoNotSerialize<>(value);
+            assertEquals(value, wrapper.get());
+            assertSame(value, wrapper.get());
+        }
+
+        @Test
+        void getWithNull() {
+            Sensitive.DoNotSerialize<String> wrapper = new Sensitive.DoNotSerialize<>(null);
+            assertNull(wrapper.get());
+        }
+
+        @Test
+        void serializationFails() {
+            String value = "secret";
+            Sensitive.DoNotSerialize<String> wrapper = new Sensitive.DoNotSerialize<>(value);
+
+            assertThrows(NotSerializableException.class, () -> {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(baos);
+                oos.writeObject(wrapper);
+            });
+        }
+    }
+
 }

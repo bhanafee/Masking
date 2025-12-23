@@ -232,18 +232,4 @@ class RenderersTest {
         }
     }
 
-    @Nested
-    class RedactorInterface {
-        @Test
-        void passThroughReturnsInputUnchanged() {
-            CharSequence result = Renderers.Redactor.PASS_THROUGH.apply(3, "secret");
-            assertEquals("secret", result);
-        }
-
-        @Test
-        void passThroughIgnoresPrecision() {
-            CharSequence result = Renderers.Redactor.PASS_THROUGH.apply(-1, "test");
-            assertEquals("test", result);
-        }
-    }
 }

@@ -55,12 +55,12 @@ public class Renderers {
     /**
      * Default delimiter between fields.
      */
-    public static final char DEFAULT_DELIMITER = '-';
+    public static final Character DEFAULT_DELIMITER = '-';
 
     /**
      * Default replacement character for masking.
      */
-    public static final char DEFAULT_MASK = '#';
+    public static final Character DEFAULT_MASK = '#';
 
     public static <T extends CharSequence> Renderer<T> unredacted() {
         return (cs, p) -> cs;
@@ -124,14 +124,6 @@ public class Renderers {
         } else {
             return Math.max(0, length - precision);
         }
-    }
-
-    public interface Redactor extends BiFunction<Integer, CharSequence, CharSequence> {
-
-        /**
-         * Redactor that returns the entire unredacted input {@link CharSequence}.
-         */
-        Redactor PASS_THROUGH = (p, cs) -> cs;
     }
 
 }
