@@ -1,11 +1,14 @@
 package com.maybeitssquid.tin.us;
 
+import com.maybeitssquid.sensitive.Renderer;
+import com.maybeitssquid.sensitive.Renderers;
 import com.maybeitssquid.sensitive.Segmented;
 import com.maybeitssquid.tin.InvalidTINException;
 import com.maybeitssquid.tin.NationalTIN;
 
 import java.util.Locale;
 import java.util.Objects;
+import java.util.function.IntPredicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -95,8 +98,24 @@ abstract public class UsTIN extends Segmented<CharSequence> implements NationalT
         };
     }
 
+    public static final char DELIMITER = '-';
+
+    private static final Renderer<CharSequence[]> masked = Renderers.join(Renderers.masked());
+    private static final Renderer<CharSequence[]> maskedDelimited =
+            Renderers.join(Renderers.masked(c -> c != DELIMITER), DELIMITER);
+
     public UsTIN(final String... raw) {
         super(raw);
+    }
+
+    @Override
+    protected Renderer<CharSequence[]> getRenderer() {
+        return masked;
+    }
+
+    @Override
+    protected Renderer<CharSequence[]> getAltRenderer() {
+        return maskedDelimited;
     }
 
     @Override

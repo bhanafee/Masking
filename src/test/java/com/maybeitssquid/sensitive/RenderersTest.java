@@ -12,11 +12,6 @@ class RenderersTest {
     @Nested
     class Constants {
         @Test
-        void defaultDelimiterIsDash() {
-            assertEquals('-', Renderers.DEFAULT_DELIMITER);
-        }
-
-        @Test
         void defaultMaskIsHash() {
             assertEquals('#', Renderers.DEFAULT_MASK);
         }
