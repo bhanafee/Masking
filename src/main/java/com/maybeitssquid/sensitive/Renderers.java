@@ -56,18 +56,54 @@ public class Renderers {
      */
     public static final Character DEFAULT_MASK = '#';
 
+    /**
+     * Returns a renderer that shows the value completely unredacted.
+     *
+     * @param <T> the type of CharSequence to render
+     * @return a renderer that returns the input unchanged
+     */
     public static <T extends CharSequence> Renderer<T> unredacted() {
         return (cs, p) -> cs;
     }
 
+    /**
+     * Returns a renderer that truncates the beginning of the value, showing only
+     * the trailing characters based on precision.
+     *
+     * <p>If precision is negative, shows the last half of the characters (rounded down).
+     * Otherwise, shows at most {@code precision} trailing characters.
+     *
+     * @param <T> the type of CharSequence to render
+     * @return a renderer that truncates leading characters
+     */
     public static <T extends CharSequence> Renderer<T> truncated() {
         return (cs, p) -> cs.subSequence(Renderers.redact(p, cs.length()), cs.length());
     }
 
+    /**
+     * Returns a renderer that masks leading characters with the {@link #DEFAULT_MASK} character.
+     *
+     * <p>If precision is negative, masks the first half of the characters (rounded up).
+     * Otherwise, masks all but the last {@code precision} characters.
+     *
+     * @param <T> the type of CharSequence to render
+     * @return a renderer that masks leading characters with '#'
+     * @see #masked(char)
+     */
     public static <T extends CharSequence> Renderer<T> masked() {
         return masked(DEFAULT_MASK);
     }
 
+    /**
+     * Returns a renderer that masks leading characters with the specified mask character.
+     *
+     * <p>If precision is negative, masks the first half of the characters (rounded up).
+     * Otherwise, masks all but the last {@code precision} characters.
+     *
+     * @param <T>  the type of CharSequence to render
+     * @param mask the character to use for masking
+     * @return a renderer that masks leading characters
+     */
     public static <T extends CharSequence> Renderer<T> masked(final char mask) {
         final String m = Character.toString(mask);
         return (cs, p) -> {
@@ -76,10 +112,35 @@ public class Renderers {
         };
     }
 
+    /**
+     * Returns a renderer that masks only characters matching the predicate, using the
+     * {@link #DEFAULT_MASK} character.
+     *
+     * <p>Characters not matching the predicate (such as delimiters) are preserved in place.
+     * The precision applies only to matching characters.
+     *
+     * @param <T>      the type of CharSequence to render
+     * @param maskable predicate that returns true for characters that should be masked
+     * @return a renderer that selectively masks characters
+     * @see #masked(IntPredicate, char)
+     */
     public static <T extends CharSequence> Renderer<T> masked(IntPredicate maskable) {
         return masked(maskable, DEFAULT_MASK);
     }
 
+    /**
+     * Returns a renderer that masks only characters matching the predicate, using the
+     * specified mask character.
+     *
+     * <p>Characters not matching the predicate (such as delimiters) are preserved in place.
+     * The precision applies only to matching characters. For example, masking an SSN
+     * "123-45-6789" with a digit predicate and precision 4 would produce "###-##-6789".
+     *
+     * @param <T>      the type of CharSequence to render
+     * @param maskable predicate that returns true for characters that should be masked
+     * @param mask     the character to use for masking
+     * @return a renderer that selectively masks characters
+     */
     public static <T extends CharSequence> Renderer<T> masked(IntPredicate maskable, final char mask) {
         return (cs, p) -> {
             final int significant = (int) cs.chars().filter(maskable).count();
@@ -102,10 +163,29 @@ public class Renderers {
         };
     }
 
+    /**
+     * Returns a renderer that joins an array of CharSequences and applies the given renderer.
+     *
+     * <p>The array elements are concatenated without a delimiter before rendering.
+     *
+     * @param <T>      the element type of the CharSequence array
+     * @param renderer the renderer to apply to the joined string
+     * @return a renderer for arrays of CharSequences
+     * @see #join(Renderer, char)
+     */
     public static <T extends CharSequence> Renderer<T[]> join(final Renderer<CharSequence> renderer) {
         return (cs, p) -> renderer.apply(String.join("", cs), p);
     }
 
+    /**
+     * Returns a renderer that joins an array of CharSequences with a delimiter and applies
+     * the given renderer.
+     *
+     * @param <T>       the element type of the CharSequence array
+     * @param renderer  the renderer to apply to the joined string
+     * @param delimiter the character to insert between array elements
+     * @return a renderer for arrays of CharSequences
+     */
     public static <T extends CharSequence> Renderer<T[]> join(final Renderer<CharSequence> renderer, final char delimiter) {
         final String d = Character.toString(delimiter);
         return (cs, p) -> renderer.apply(String.join(d, cs), p);
