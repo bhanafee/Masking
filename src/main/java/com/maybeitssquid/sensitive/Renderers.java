@@ -1,7 +1,6 @@
 package com.maybeitssquid.sensitive;
 
 import java.nio.CharBuffer;
-import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
 
 /**
@@ -53,11 +52,6 @@ import java.util.function.IntPredicate;
 @SuppressWarnings("unused")
 public class Renderers {
     /**
-     * Default delimiter between fields.
-     */
-    public static final Character DEFAULT_DELIMITER = '-';
-
-    /**
      * Default replacement character for masking.
      */
     public static final Character DEFAULT_MASK = '#';
@@ -75,18 +69,18 @@ public class Renderers {
     }
 
     public static <T extends CharSequence> Renderer<T> masked(final char mask) {
+        final String m = Character.toString(mask);
         return (cs, p) -> {
             final int redact = Renderers.redact(p, cs.length());
-            return Character.toString(mask).repeat(redact) +
-                    cs.subSequence(redact, cs.length());
+            return m.repeat(redact) + cs.subSequence(redact, cs.length());
         };
     }
 
-    public static<T extends CharSequence> Renderer<T> masked(IntPredicate maskable) {
-        return masked(DEFAULT_MASK);
+    public static <T extends CharSequence> Renderer<T> masked(IntPredicate maskable) {
+        return masked(maskable, DEFAULT_MASK);
     }
 
-    public static<T extends CharSequence> Renderer<T> masked(IntPredicate maskable, final char mask) {
+    public static <T extends CharSequence> Renderer<T> masked(IntPredicate maskable, final char mask) {
         return (cs, p) -> {
             final int significant = (int) cs.chars().filter(maskable).count();
             final int redact = Renderers.redact(p, significant);
@@ -108,12 +102,21 @@ public class Renderers {
         };
     }
 
+    public static <T extends CharSequence> Renderer<T[]> join(final Renderer<CharSequence> renderer) {
+        return (cs, p) -> renderer.apply(String.join("", cs), p);
+    }
+
+    public static <T extends CharSequence> Renderer<T[]> join(final Renderer<CharSequence> renderer, final char delimiter) {
+        final String d = Character.toString(delimiter);
+        return (cs, p) -> renderer.apply(String.join(d, cs), p);
+    }
+
     /**
      * Computes the number of characters to redact. If precision < 0, returns half the length (rounded up),
      * otherwise returns length - precision.
      *
      * @param precision the number of unredacted characters requested, or -1 if default is desired.
-     * @param length the number of characters in the unredacted field.
+     * @param length    the number of characters in the unredacted field.
      * @return the number of unredacted characters to show.
      */
     public static int redact(final int precision, final int length) {

@@ -198,7 +198,8 @@ public class Sensitive<T> implements Formattable {
         final boolean upper = ((flags & FormattableFlags.UPPERCASE) == FormattableFlags.UPPERCASE);
         final boolean left = ((flags & FormattableFlags.LEFT_JUSTIFY) == FormattableFlags.LEFT_JUSTIFY);
 
-        final CharSequence redacted = getRenderer().apply(this.supplier.get(), precision);
+        final Renderer<T> renderer = alternate ? getAltRenderer() : getRenderer();
+        final CharSequence redacted = renderer.apply(this.supplier.get(), precision);
 
         formatter.format(residualFormat(width, left, upper), redacted);
     }

@@ -3,9 +3,85 @@ package com.maybeitssquid.tin.us;
 import com.maybeitssquid.tin.InvalidTINException;
 import org.junit.jupiter.api.Test;
 
+import org.junit.jupiter.api.Nested;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class SSNTest {
+
+    @Nested
+    class Formattable {
+        @Test
+        void defaultFormatMasksValue() {
+            SSN ssn = new SSN("123-45-6789");
+            assertEquals("#####6789", String.format("%s", ssn));
+        }
+
+        @Test
+        void precisionControlsVisibleDigits() {
+            SSN ssn = new SSN("123-45-6789");
+            assertEquals("####56789", String.format("%.5s", ssn));
+            assertEquals("###456789", String.format("%.6s", ssn));
+            assertEquals("123456789", String.format("%.9s", ssn));
+        }
+
+        @Test
+        void zeroPrecisionMasksAll() {
+            SSN ssn = new SSN("123-45-6789");
+            assertEquals("#########", String.format("%.0s", ssn));
+        }
+
+        @Test
+        void highPrecisionShowsAll() {
+            SSN ssn = new SSN("123-45-6789");
+            assertEquals("123456789", String.format("%.100s", ssn));
+        }
+
+        @Test
+        void alternateFormPreservesDelimiters() {
+            SSN ssn = new SSN("123-45-6789");
+            assertEquals("###-##-6789", String.format("%#s", ssn));
+        }
+
+        @Test
+        void alternateFormWithPrecision() {
+            SSN ssn = new SSN("123-45-6789");
+            assertEquals("###-#5-6789", String.format("%#.5s", ssn));
+            assertEquals("###-45-6789", String.format("%#.6s", ssn));
+            assertEquals("123-45-6789", String.format("%#.9s", ssn));
+        }
+
+        @Test
+        void alternateFormZeroPrecision() {
+            SSN ssn = new SSN("123-45-6789");
+            assertEquals("###-##-####", String.format("%#.0s", ssn));
+        }
+
+        @Test
+        void widthPadsOutput() {
+            SSN ssn = new SSN("123-45-6789");
+            assertEquals("    #####6789", String.format("%13s", ssn));
+        }
+
+        @Test
+        void leftJustifyWithWidth() {
+            SSN ssn = new SSN("123-45-6789");
+            assertEquals("#####6789    ", String.format("%-13s", ssn));
+        }
+
+        @Test
+        void uppercaseFlag() {
+            SSN ssn = new SSN("123-45-6789");
+            // Digits and # don't change with uppercase, but flag should be accepted
+            assertEquals("#####6789", String.format("%S", ssn));
+        }
+
+        @Test
+        void combinedFlags() {
+            SSN ssn = new SSN("123-45-6789");
+            assertEquals("###-##-6789  ", String.format("%#-13s", ssn));
+        }
+    }
 
 
     @Test
@@ -96,11 +172,13 @@ class SSNTest {
     }
 
     @Test
-    void toStringDoesNotExposeValue() {
+    void toStringMasksValue() {
         SSN ssn = new SSN("123-45-6789");
         String str = ssn.toString();
-        assertFalse(str.contains("123"));
-        assertFalse(str.contains("6789"));
+        assertEquals("123", ssn.getArea());
+        assertEquals("45", ssn.getGroup());
+        assertEquals("6789", ssn.getSerial());
+        assertEquals("#####6789", str);
     }
 
     @Test
