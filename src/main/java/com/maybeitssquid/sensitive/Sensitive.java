@@ -127,7 +127,12 @@ public class Sensitive<T> implements Formattable {
     /**
      * Returns the renderer used to format this sensitive value. The renderer is used
      * by {@link #formatTo(Formatter, int, int, int)} to transform the value into a
+<<<<<<< HEAD
      * string exposes the sensitive data only to the specified precision.
+=======
+     * partially redacted string that exposes the sensitive data only to the specified
+     * precision.
+>>>>>>> 865ab59 (Clarified examples for getRenderer() and getAltRenderer() javadoc. Expanded README.md.)
      *
      * <p>The default implementation returns a renderer that produces an empty string,
      * ensuring no sensitive data is disclosed by default. Subclasses should override
@@ -135,12 +140,20 @@ public class Sensitive<T> implements Formattable {
      * static renderer instance.
      *
      * <p>A Renderer is expected to be stateless and thread-safe. There should be no reason
+<<<<<<< HEAD
      * to create more than one renderer instance for a given subclass. The
      * implementation normally returns a private static singleton. Using a private but
      * non-static renderer causes a new instance to be created for every {@code Sensitive}
      * value, and constructing the renderer dynamically inside {@code getRenderer()} (for
      * example, by calling a static factory like those in {@code Renderers} on every call)
      * creates even more temporary objects.
+=======
+     * to create more than one renderer instance for a given subclass. The implementation
+     * normally returns a private static singleton. Using a private but non-static renderer
+     * causes a new instance to be created for every {@code Sensitive} value. Constructing
+     * the renderer dynamically inside this method, such as by calling a static factory in
+     * {@link Renderers} on every call, creates even more temporary objects.
+>>>>>>> 865ab59 (Clarified examples for getRenderer() and getAltRenderer() javadoc. Expanded README.md.)
      *
      * <pre>{@code
      * // Good: shared static singleton
@@ -156,7 +169,11 @@ public class Sensitive<T> implements Formattable {
      *
      * @Override
      * protected Renderer<String> getRenderer() {
+<<<<<<< HEAD
      *     return renderer;
+=======
+     *     return this.renderer;
+>>>>>>> 865ab59 (Clarified examples for getRenderer() and getAltRenderer() javadoc. Expanded README.md.)
      * }
      *
      * // Bad: dynamic creation on each call
