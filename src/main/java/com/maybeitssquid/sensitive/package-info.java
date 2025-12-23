@@ -23,6 +23,5 @@
  *
  * @see com.maybeitssquid.sensitive.Sensitive
  * @see com.maybeitssquid.sensitive.Renderers
- * @see com.maybeitssquid.sensitive.RegexRedactors
  */
 package com.maybeitssquid.sensitive;
