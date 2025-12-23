@@ -55,26 +55,15 @@ public abstract class UsTIN extends Segmented<CharSequence> implements NationalT
             if (name.isBlank()) throw new IllegalArgumentException("Segment name must not be blank");
             if (length < 1 || length > 9) throw new IllegalArgumentException("Segment length must be in the range 1-9");
         }
-        private int min() {
-            return 1;
-        }
+        private static final int MIN = 1;
+
         private int max() {
-            return switch (length) {
-                case 1 -> 9;
-                case 2 -> 99;
-                case 3 -> 999;
-                case 4 -> 9999;
-                case 5 -> 99999;
-                case 6 -> 999999;
-                case 7 -> 9999999;
-                case 8 -> 99999999;
-                case 9 -> 999999999;
-                default -> 0;
-            };
+            return (int) Math.pow(10, length) - 1;
         }
+
         public String validate(final int value) {
-            if (value < min() || value > max()) throw new InvalidTINException(
-                    String.format("Invalid %s: expected range %d-%d", name, min(), max())
+            if (value < MIN || value > max()) throw new InvalidTINException(
+                    String.format("Invalid %s: expected range %d-%d", name, MIN, max())
             );
             return String.format("%0" + length + "d", value);
         }
