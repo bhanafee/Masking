@@ -31,7 +31,6 @@ import java.util.regex.Pattern;
 public final class EIN extends UsTIN {
     public static final Segment CAMPUS = new Segment("campus", 2);
     public static final Segment SERIAL = new Segment("serial", 7);
-
     private static final Segment[] EXPECTED = { CAMPUS, SERIAL };
 
     private static final Pattern EIN_PATTERN = Pattern.compile(

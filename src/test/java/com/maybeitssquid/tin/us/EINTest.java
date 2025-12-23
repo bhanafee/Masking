@@ -98,8 +98,7 @@ class EINTest {
     @Test
     void constructFromStrings() {
         EIN ein = new EIN("12", "3456789");
-        assertEquals("12", ein.getCampus());
-        assertEquals("3456789", ein.getSerial());
+        assertEquals("12-3456789", String.format("%#.9s", ein));
     }
 
     @Test
@@ -125,15 +124,13 @@ class EINTest {
     @Test
     void constructFromInts() {
         EIN ein = new EIN(12, 3456789);
-        assertEquals("12", ein.getCampus());
-        assertEquals("3456789", ein.getSerial());
+        assertEquals(new EIN("12-3456789"), ein);
     }
 
     @Test
     void constructFromIntsWithLeadingZeros() {
         EIN ein = new EIN(1, 23);
-        assertEquals("01", ein.getCampus());
-        assertEquals("0000023", ein.getSerial());
+        assertEquals("01-0000023", String.format("%#.9s", ein));
     }
 
     @Test
@@ -147,8 +144,7 @@ class EINTest {
     @Test
     void constructFromCharSequence() {
         EIN ein = new EIN("12-3456789");
-        assertEquals("12", ein.getCampus());
-        assertEquals("3456789", ein.getSerial());
+        assertEquals(new EIN("12", "3456789"), ein);
     }
 
     @Test
@@ -164,10 +160,7 @@ class EINTest {
     @Test
     void toStringMasksValue() {
         EIN ein = new EIN("12-3456789");
-        String str = ein.toString();
-        assertEquals("12", ein.getCampus());
-        assertEquals("3456789", ein.getSerial());
-        assertEquals("#####6789", str);
+        assertEquals("#####6789", ein.toString());
     }
 
     @Test

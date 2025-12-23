@@ -98,9 +98,7 @@ class SSNTest {
     @Test
     void constructFromStrings() {
         SSN ssn = new SSN("123", "45", "6789");
-        assertEquals("123", ssn.getArea());
-        assertEquals("45", ssn.getGroup());
-        assertEquals("6789", ssn.getSerial());
+        assertEquals("123-45-6789", String.format("%#.9s", ssn));
     }
 
     @Test
@@ -130,17 +128,13 @@ class SSNTest {
     @Test
     void constructFromInts() {
         SSN ssn = new SSN(123, 45, 6789);
-        assertEquals("123", ssn.getArea());
-        assertEquals("45", ssn.getGroup());
-        assertEquals("6789", ssn.getSerial());
+        assertEquals(new SSN("123-45-6789"), ssn);
     }
 
     @Test
     void constructFromIntsWithLeadingZeros() {
         SSN ssn = new SSN(1, 2, 3);
-        assertEquals("001", ssn.getArea());
-        assertEquals("02", ssn.getGroup());
-        assertEquals("0003", ssn.getSerial());
+        assertEquals("001-02-0003", String.format("%#.9s", ssn));
     }
 
     @Test
@@ -156,9 +150,7 @@ class SSNTest {
     @Test
     void constructFromCharSequence() {
         SSN ssn = new SSN("123-45-6789");
-        assertEquals("123", ssn.getArea());
-        assertEquals("45", ssn.getGroup());
-        assertEquals("6789", ssn.getSerial());
+        assertEquals(new SSN("123", "45", "6789"), ssn);
     }
 
     @Test
@@ -174,11 +166,7 @@ class SSNTest {
     @Test
     void toStringMasksValue() {
         SSN ssn = new SSN("123-45-6789");
-        String str = ssn.toString();
-        assertEquals("123", ssn.getArea());
-        assertEquals("45", ssn.getGroup());
-        assertEquals("6789", ssn.getSerial());
-        assertEquals("#####6789", str);
+        assertEquals("#####6789", ssn.toString());
     }
 
     @Test
