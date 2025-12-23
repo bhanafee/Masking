@@ -3,9 +3,85 @@ package com.maybeitssquid.tin.us;
 import com.maybeitssquid.tin.InvalidTINException;
 import org.junit.jupiter.api.Test;
 
+import org.junit.jupiter.api.Nested;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class EINTest {
+
+    @Nested
+    class Formattable {
+        @Test
+        void defaultFormatMasksValue() {
+            EIN ein = new EIN("12-3456789");
+            assertEquals("#####6789", String.format("%s", ein));
+        }
+
+        @Test
+        void precisionControlsVisibleDigits() {
+            EIN ein = new EIN("12-3456789");
+            assertEquals("####56789", String.format("%.5s", ein));
+            assertEquals("###456789", String.format("%.6s", ein));
+            assertEquals("123456789", String.format("%.9s", ein));
+        }
+
+        @Test
+        void zeroPrecisionMasksAll() {
+            EIN ein = new EIN("12-3456789");
+            assertEquals("#########", String.format("%.0s", ein));
+        }
+
+        @Test
+        void highPrecisionShowsAll() {
+            EIN ein = new EIN("12-3456789");
+            assertEquals("123456789", String.format("%.100s", ein));
+        }
+
+        @Test
+        void alternateFormPreservesDelimiters() {
+            EIN ein = new EIN("12-3456789");
+            assertEquals("##-###6789", String.format("%#s", ein));
+        }
+
+        @Test
+        void alternateFormWithPrecision() {
+            EIN ein = new EIN("12-3456789");
+            assertEquals("##-##56789", String.format("%#.5s", ein));
+            assertEquals("##-#456789", String.format("%#.6s", ein));
+            assertEquals("12-3456789", String.format("%#.9s", ein));
+        }
+
+        @Test
+        void alternateFormZeroPrecision() {
+            EIN ein = new EIN("12-3456789");
+            assertEquals("##-#######", String.format("%#.0s", ein));
+        }
+
+        @Test
+        void widthPadsOutput() {
+            EIN ein = new EIN("12-3456789");
+            assertEquals("    #####6789", String.format("%13s", ein));
+        }
+
+        @Test
+        void leftJustifyWithWidth() {
+            EIN ein = new EIN("12-3456789");
+            assertEquals("#####6789    ", String.format("%-13s", ein));
+        }
+
+        @Test
+        void uppercaseFlag() {
+            EIN ein = new EIN("12-3456789");
+            // Digits and # don't change with uppercase, but flag should be accepted
+            assertEquals("#####6789", String.format("%S", ein));
+        }
+
+        @Test
+        void combinedFlags() {
+            EIN ein = new EIN("12-3456789");
+            assertEquals("##-###6789   ", String.format("%#-13s", ein));
+        }
+    }
 
 
     @Test
@@ -86,11 +162,12 @@ class EINTest {
     }
 
     @Test
-    void toStringDoesNotExposeValue() {
+    void toStringMasksValue() {
         EIN ein = new EIN("12-3456789");
         String str = ein.toString();
-        assertFalse(str.contains("12"));
-        assertFalse(str.contains("3456789"));
+        assertEquals("12", ein.getCampus());
+        assertEquals("3456789", ein.getSerial());
+        assertEquals("#####6789", str);
     }
 
     @Test
