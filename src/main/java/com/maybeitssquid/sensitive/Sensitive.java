@@ -25,10 +25,7 @@ import java.util.function.Supplier;
  * <h3>Example Subclass</h3>
  * <pre>{@code
  * public class MaskedSecret extends Sensitive<String> {
- *     private static final Renderer<String> RENDERER = (value, precision, alternate) -> {
- *         if (alternate) return value;  // Full value when alternate flag set
- *         return "***";                 // Masked by default
- *     };
+ *     private static final Renderer<String> RENDERER = Renderers.masked();
  *
  *     public MaskedSecret(String value) {
  *         super(value);
@@ -98,7 +95,6 @@ import java.util.function.Supplier;
  * @see Renderer
  * @see #getRenderer()
  */
-@SuppressWarnings("unused")
 public class Sensitive<T> implements Formattable {
 
     /**
@@ -138,9 +134,7 @@ public class Sensitive<T> implements Formattable {
      * <h3>Example</h3>
      * <pre>{@code
      * public class MaskedValue extends Sensitive<String> {
-     *     private static final Renderer<String> RENDERER = (value, precision, alternate) -> {
-     *         return value.substring(0, Math.min(precision, value.length())) + "***";
-     *     };
+     *     private static final Renderer<String> RENDERER = Renderers.masked();
      *
      *     public MaskedValue(String value) {
      *         super(value);

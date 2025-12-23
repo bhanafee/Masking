@@ -8,17 +8,17 @@ import java.util.Arrays;
  * @param <T> the type of the individual segments. This type should have well-defined {@link Object#equals(Object)} and
  *            {@link Object#hashCode()} methods so that the corresponding methods on this class meets the contract.
  */
-@SuppressWarnings("unused")
 public class Segmented<T> extends Sensitive<T[]> {
 
     /**
      * Creates a new Segmented container with the specified array.
      * The array is cloned to prevent external mutation.
      *
-     * @param value the array of sensitive values
+     * @param value the array of sensitive values; must not be {@code null}
+     * @throws NullPointerException if value is {@code null}
      */
     public Segmented(final T[] value) {
-        super(value == null ? null : value.clone());
+        super(value.clone());
     }
 
     /**

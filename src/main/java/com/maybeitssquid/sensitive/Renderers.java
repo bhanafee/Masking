@@ -12,12 +12,23 @@ import java.util.function.IntPredicate;
  *
  * <h3>Usage Examples</h3>
  * <pre>{@code
- * // Simple masking subclass - show last 4 digits
+ * // Simple masking subclass - mask leading characters, show last 4
+ * public class AccountNumber extends Sensitive<String> {
+ *     private static final Renderer<String> RENDERER = Renderers.masked();
+ *
+ *     public AccountNumber(String value) { super(value); }
+ *
+ *     @Override
+ *     protected Renderer<String> getRenderer() { return RENDERER; }
+ * }
+ *
+ * AccountNumber acct = new AccountNumber("1234567890");
+ * System.out.printf("%.4s", acct); // prints "######7890"
+ *
+ * // Selective masking - preserve delimiters, mask only digits
  * public class SSN extends Sensitive<String> {
- *     private static final Renderer<String> RENDERER = Renderers.simple(
- *         Renderers.Extractor.string(),
- *         RegexRedactors.mask('-')
- *     );
+ *     private static final Renderer<String> RENDERER =
+ *         Renderers.masked(Character::isDigit);
  *
  *     public SSN(String value) { super(value); }
  *
@@ -27,29 +38,11 @@ import java.util.function.IntPredicate;
  *
  * SSN ssn = new SSN("123-45-6789");
  * System.out.printf("%.4s", ssn); // prints "###-##-6789"
- *
- * // Alternate rendering for admin context
- * public class CreditCard extends Sensitive<String> {
- *     private static final Renderer<String> RENDERER = Renderers.alternateIsUnredacted(
- *         Renderers.Extractor.string(),
- *         RegexRedactors.DEFAULT_MASK
- *     );
- *
- *     public CreditCard(String value) { super(value); }
- *
- *     @Override
- *     protected Renderer<String> getRenderer() { return RENDERER; }
- * }
- *
- * CreditCard card = new CreditCard("4111-1111-1111-1111");
- * System.out.printf("%s", card);   // prints "####-####-####-1111"
- * System.out.printf("%#s", card);  // prints "4111-1111-1111-1111" (unredacted)
  * }</pre>
  *
  * @see Sensitive#getRenderer()
  * @see Sensitive#getAltRenderer()
  */
-@SuppressWarnings("unused")
 public class Renderers {
     /**
      * Default replacement character for masking.
