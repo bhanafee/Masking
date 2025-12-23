@@ -125,26 +125,44 @@ public class Sensitive<T> implements Formattable {
     }
 
     /**
-     * Returns the renderer used to format this sensitive value.
+     * Returns the renderer used to format this sensitive value. The renderer is used
+     * by {@link #formatTo(Formatter, int, int, int)} to transform the value into a
+     * string exposes the sensitive data only to the specified precision.
      *
      * <p>The default implementation returns a renderer that produces an empty string,
      * ensuring no sensitive data is disclosed by default. Subclasses should override
      * this method to provide custom rendering behavior, typically returning a shared
      * static renderer instance.
      *
-     * <h3>Example</h3>
+     * <p>A Renderer is expected to be stateless and thread-safe. There should be no reason
+     * to create more than one renderer instance for a given subclass. The
+     * implementation normally returns a private static singleton. Using a private but
+     * non-static renderer causes a new instance to be created for every {@code Sensitive}
+     * value, and constructing the renderer dynamically inside {@code getRenderer()} (for
+     * example, by calling a static factory like those in {@code Renderers} on every call)
+     * creates even more temporary objects.
+     *
      * <pre>{@code
-     * public class MaskedValue extends Sensitive<String> {
-     *     private static final Renderer<String> RENDERER = Renderers.masked();
+     * // Good: shared static singleton
+     * private static final Renderer<String> RENDERER = Renderers.masked();
      *
-     *     public MaskedValue(String value) {
-     *         super(value);
-     *     }
+     * @Override
+     * protected Renderer<String> getRenderer() {
+     *     return RENDERER;
+     * }
      *
-     *     @Override
-     *     protected Renderer<String> getRenderer() {
-     *         return RENDERER;
-     *     }
+     * // Bad: non-static instance field causes per-instance renderer creation
+     * private final Renderer<String> renderer = Renderers.masked();
+     *
+     * @Override
+     * protected Renderer<String> getRenderer() {
+     *     return renderer;
+     * }
+     *
+     * // Bad: dynamic creation on each call
+     * @Override
+     * protected Renderer<String> getRenderer() {
+     *     return Renderers.masked();
      * }
      * }</pre>
      *
@@ -159,14 +177,13 @@ public class Sensitive<T> implements Formattable {
      *
      * <p>The default implementation delegates to {@link #getRenderer()}. Override this method to
      * provide an alternate rendition when using {@code String.format("%#s", this)}, such as
-     * showing the unredacted value for administrative contexts or showing the value in a commonly
-     * used human-readable form.
+     * showing the value in a commonly used human-readable form.
      *
      * <h3>Example</h3>
      * <pre>{@code
-     * public class AdminViewableSecret extends Sensitive<String> {
-     *     private static final Renderer<String> MASKED = Renderers.masked();
-     *     private static final Renderer<String> UNMASKED = Renderers.unredacted();
+     * public class MySecret extends Sensitive<String> {
+     *     private static final Renderer<String> TRUNCATED = Renderers.truncated();
+     *     private static final Renderer<String> MASKED = Renderers.masked('?');
      *
      *     @Override
      *     protected Renderer<String> getRenderer() { return MASKED; }
@@ -175,9 +192,9 @@ public class Sensitive<T> implements Formattable {
      *     protected Renderer<String> getAltRenderer() { return UNMASKED; }
      * }
      *
-     * AdminViewableSecret secret = new AdminViewableSecret("secret123");
-     * String.format("%s", secret);   // Returns "#####t123" (masked)
-     * String.format("%#s", secret);  // Returns "secret123" (unredacted)
+     * MySecret secret = new MySecret("secret123");
+     * String.format("%s", secret);   // Returns "t123"      (truncated)
+     * String.format("%#s", secret);  // Returns "?????t123" (masked with question marks)
      * }</pre>
      *
      * @return the alternate renderer for this sensitive value; never {@code null}
