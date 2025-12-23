@@ -50,8 +50,13 @@ public interface Renderer<T> {
     CharSequence apply(T t, int precision);
 
     /**
-     * Returns a renderer that always returns an empty string.
-     * @return a renderer that always returns an empty string.
+     * Returns a renderer that always returns an empty string, ensuring no sensitive data is disclosed.
+     *
+     * <p>This is the default renderer used by {@link Sensitive#getRenderer()} and provides
+     * maximum protection by revealing nothing about the contained value.
+     *
+     * @param <T> the type of data the renderer accepts (ignored since output is always empty)
+     * @return a renderer that always returns an empty string
      */
     static <T> Renderer<T> empty() {
         return (t, p) -> "";
