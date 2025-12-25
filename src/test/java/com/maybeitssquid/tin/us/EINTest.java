@@ -86,8 +86,6 @@ class EINTest {
 
     @Test
     void parseInvalidFormat() {
-        assertThrows(InvalidTINException.class, () -> new EIN(null));
-        assertThrows(InvalidTINException.class, () -> new EIN("123456789"));
         assertThrows(InvalidTINException.class, () -> new EIN("1-23456789"));
         assertThrows(InvalidTINException.class, () -> new EIN("123-456789"));
         assertThrows(InvalidTINException.class, () -> new EIN("12-345678"));
@@ -103,8 +101,8 @@ class EINTest {
 
     @Test
     void constructFromStringsNull() {
-        assertThrows(InvalidTINException.class, () -> new EIN(null, "3456789"));
-        assertThrows(InvalidTINException.class, () -> new EIN("12", null));
+        assertThrows(NullPointerException.class, () -> new EIN(null, "3456789"));
+        assertThrows(NullPointerException.class, () -> new EIN("12", null));
     }
 
     @Test
@@ -145,11 +143,13 @@ class EINTest {
     void constructFromCharSequence() {
         EIN ein = new EIN("12-3456789");
         assertEquals(new EIN("12", "3456789"), ein);
+        EIN ein2 = new EIN("123456789");
+        assertEquals(new EIN("12", "3456789"), ein);
     }
 
     @Test
     void constructFromCharSequenceNull() {
-        assertThrows(InvalidTINException.class, () -> new EIN((CharSequence) null));
+        assertThrows(NullPointerException.class, () -> new EIN((CharSequence) null));
     }
 
     @Test

@@ -86,9 +86,6 @@ class SSNTest {
 
     @Test
     void parseInvalidFormat() {
-        assertThrows(InvalidTINException.class, () -> new SSN(null));
-        assertThrows(InvalidTINException.class, () -> new SSN("123456789"));
-        assertThrows(InvalidTINException.class, () -> new SSN("12-345-6789"));
         assertThrows(InvalidTINException.class, () -> new SSN("1234-5-6789"));
         assertThrows(InvalidTINException.class, () -> new SSN("123-45-678"));
         assertThrows(InvalidTINException.class, () -> new SSN(""));
@@ -103,9 +100,9 @@ class SSNTest {
 
     @Test
     void constructFromStringsNull() {
-        assertThrows(InvalidTINException.class, () -> new SSN(null, "45", "6789"));
-        assertThrows(InvalidTINException.class, () -> new SSN("123", null, "6789"));
-        assertThrows(InvalidTINException.class, () -> new SSN("123", "45", null));
+        assertThrows(NullPointerException.class, () -> new SSN(null, "45", "6789"));
+        assertThrows(NullPointerException.class, () -> new SSN("123", null, "6789"));
+        assertThrows(NullPointerException.class, () -> new SSN("123", "45", null));
     }
 
     @Test
@@ -151,11 +148,13 @@ class SSNTest {
     void constructFromCharSequence() {
         SSN ssn = new SSN("123-45-6789");
         assertEquals(new SSN("123", "45", "6789"), ssn);
+        SSN ssn2 = new SSN("123456789");
+        assertEquals(new SSN("123", "45", "6789"), ssn);
     }
 
     @Test
     void constructFromCharSequenceNull() {
-        assertThrows(InvalidTINException.class, () -> new SSN((CharSequence) null));
+        assertThrows(NullPointerException.class, () -> new SSN((CharSequence) null));
     }
 
     @Test

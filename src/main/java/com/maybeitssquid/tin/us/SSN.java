@@ -2,6 +2,7 @@ package com.maybeitssquid.tin.us;
 
 import com.maybeitssquid.tin.InvalidTINException;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -30,15 +31,15 @@ import java.util.regex.Pattern;
  * @see UsTIN
  */
 public final class SSN extends UsTIN {
-    public static final Segment AREA = new Segment("area", 3);
-    public static final Segment GROUP = new Segment("group", 2);
-    public static final Segment SERIAL = new Segment("serial", 4);
 
-    private static final Segment[] EXPECTED = { AREA, GROUP, SERIAL };
+    private static final String AREA = digits("area", 3);
+    private static final String GROUP = digits("group", 2);
+    private static final String SERIAL = digits("serial", 4);
 
-    private static final Pattern SSN_PATTERN = Pattern.compile(
-            AREA.regex() + "-" + GROUP.regex() + "-" + SERIAL.regex()
-    );
+    private static final Pattern AREA_PATTERN = Pattern.compile(String.format("^%s$", AREA));
+    private static final Pattern GROUP_PATTERN = Pattern.compile(String.format("^%s$", GROUP));
+    private static final Pattern SERIAL_PATTERN = Pattern.compile(String.format("^%s$", SERIAL));
+    private static final Pattern SSN_PATTERN = Pattern.compile(String.format("^%1$s%4$s?%2$s%4$s?%3$s$", AREA, GROUP, SERIAL, DELIMITER));
 
     /**
      * Creates an SSN from individual string segments.
@@ -48,8 +49,8 @@ public final class SSN extends UsTIN {
      * @param serial the 4-digit serial number
      * @throws InvalidTINException if any segment is invalid
      */
-    public SSN(final String area, final String group, final String serial) {
-        super(validateSegments(EXPECTED, area, group, serial));
+    public SSN(final CharSequence area, final CharSequence group, final CharSequence serial) {
+        super(validate(area, group, serial));
     }
 
     /**
@@ -61,7 +62,7 @@ public final class SSN extends UsTIN {
      * @throws InvalidTINException if any segment is out of range
      */
     public SSN(final int area, final int group, final int serial) {
-        super(validateIntSegments(EXPECTED, area, group, serial));
+        this(String.format("%03d", area), String.format("%02d", group), String.format("%04d", serial));
     }
 
     /**
@@ -73,7 +74,24 @@ public final class SSN extends UsTIN {
      * @throws InvalidTINException if the format is invalid or value is null
      */
     public SSN(final CharSequence value) {
-        super(parse(SSN_PATTERN, value));
+        super(parse(value));
+    }
+
+    private static CharSequence[] validate(final CharSequence area, final CharSequence group, final CharSequence serial) {
+        if (!AREA_PATTERN.matcher(area).matches()) throw new InvalidTINException("Invalid SSN, area part must be 3 digits");
+        if (!GROUP_PATTERN.matcher(group).matches()) throw new InvalidTINException("Invalid SSN, group part must be 2 digits");
+        if (!SERIAL_PATTERN.matcher(serial).matches()) throw new InvalidTINException("Invalid SSN, serial part must be 4 digits");
+        return new CharSequence[]{area, group, serial};
+    }
+
+    private static CharSequence[] parse(final CharSequence raw) {
+        final Matcher matcher = SSN_PATTERN.matcher(raw);
+        if (!matcher.matches()) throw new InvalidTINException("Invalid SSN");
+        return new CharSequence[] {
+                matcher.group("area"),
+                matcher.group("group"),
+                matcher.group("serial")
+        };
     }
 
 }

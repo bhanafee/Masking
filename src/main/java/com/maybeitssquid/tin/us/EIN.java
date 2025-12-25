@@ -2,6 +2,7 @@ package com.maybeitssquid.tin.us;
 
 import com.maybeitssquid.tin.InvalidTINException;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -29,13 +30,12 @@ import java.util.regex.Pattern;
  * @see UsTIN
  */
 public final class EIN extends UsTIN {
-    public static final Segment CAMPUS = new Segment("campus", 2);
-    public static final Segment SERIAL = new Segment("serial", 7);
-    private static final Segment[] EXPECTED = { CAMPUS, SERIAL };
+    private static final String CAMPUS = digits("campus", 2);
+    private static final String SERIAL = digits("serial", 7);
 
-    private static final Pattern EIN_PATTERN = Pattern.compile(
-            CAMPUS.regex() + "-" + SERIAL.regex()
-    );
+    private static final Pattern CAMPUS_PATTERN = Pattern.compile(String.format("^%s$", CAMPUS));
+    private static final Pattern SERIAL_PATTERN = Pattern.compile(String.format("^%s$", SERIAL));
+    private static final Pattern EIN_PATTERN = Pattern.compile(String.format("^%1$s%3$s?%2$s$", CAMPUS, SERIAL, DELIMITER));
 
     /**
      * Creates an EIN from individual string segments.
@@ -45,7 +45,7 @@ public final class EIN extends UsTIN {
      * @throws InvalidTINException if any segment is invalid
      */
     public EIN(String campus, String serial) {
-        super(validateSegments(EXPECTED, campus, serial));
+        super(validate(campus, serial));
     }
 
     /**
@@ -56,7 +56,7 @@ public final class EIN extends UsTIN {
      * @throws InvalidTINException if any segment is out of range
      */
     public EIN(int campus, int serial) {
-        super(validateIntSegments(EXPECTED, campus, serial));
+        this(String.format("%02d", campus), String.format("%07d", serial));
     }
 
     /**
@@ -68,7 +68,22 @@ public final class EIN extends UsTIN {
      * @throws InvalidTINException if the format is invalid or value is null
      */
     public EIN(final CharSequence value) {
-        super(parse(EIN_PATTERN, value));
+        super(parse(value));
+    }
+
+    private static CharSequence[] validate(final CharSequence campus, final CharSequence serial) {
+        if (!CAMPUS_PATTERN.matcher(campus).matches()) throw new InvalidTINException("Invalid EIN, group part must be 2 digits");
+        if (!SERIAL_PATTERN.matcher(serial).matches()) throw new InvalidTINException("Invalid EIN, serial part must be 7 digits");
+        return new CharSequence[]{campus, serial};
+    }
+
+    private static CharSequence[] parse(final CharSequence raw) {
+        final Matcher matcher = EIN_PATTERN.matcher(raw);
+        if (!matcher.matches()) throw new InvalidTINException("Invalid EIN");
+        return new CharSequence[] {
+                matcher.group("campus"),
+                matcher.group("serial")
+        };
     }
 
 }
