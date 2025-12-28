@@ -9,7 +9,7 @@ import java.util.function.IntPredicate;
  * override {@link Sensitive#getRenderer()} to provide custom rendering behavior. The returned
  * renderer instances can be stored as static constants for efficient sharing across instances.
  *
- * <h3>Usage Examples</h3>
+ * <h2>Usage Examples</h2>
  * <pre>{@code
  * // Simple masking subclass - mask leading characters, show last 4
  * public class AccountNumber extends Sensitive<String> {
@@ -43,6 +43,10 @@ import java.util.function.IntPredicate;
  * @see Sensitive#getAltRenderer()
  */
 public class Renderers {
+
+    private Renderers() {
+        // EMPTY
+    };
 
     /**
      * Default replacement character for masking.
@@ -226,7 +230,7 @@ public class Renderers {
     }
 
     /**
-     * Computes the number of symbols to redact. If precision < 0, returns half the length (rounded up),
+     * Computes the number of symbols to redact. If precision &lt; 0, returns half the length (rounded up),
      * otherwise returns length - precision.
      *
      * @param precision the number of unredacted symbols requested, or -1 if default is desired.

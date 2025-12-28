@@ -179,7 +179,7 @@ public class Sensitive<T> implements Formattable {
      * provide an alternate rendition when using {@code String.format("%#s", this)}, such as
      * showing the value in a commonly used human-readable form.
      *
-     * <h3>Example</h3>
+     * <h4>Example</h4>
      * <pre>{@code
      * public class MySecret extends Sensitive<String> {
      *     private static final Renderer<String> TRUNCATED = Renderers.truncated();
