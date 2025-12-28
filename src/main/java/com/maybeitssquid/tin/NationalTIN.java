@@ -10,8 +10,7 @@ import java.util.Locale;
  * collisions between TIN numbers with different national issuers should be rare.
  * <p>
  * Preferably, the locale should be one of the constants that are named for the country in
- * {@link java.util.Locale}. If no constant is available, consider using
- * {@link java.util.Locale#of(String, String) java.util.Locale.of("", code)}.
+ * {@link java.util.Locale}. If no constant is available, consider using {@code java.util.Locale.of("", code)}.
  */
 public interface NationalTIN extends TIN<Locale> {
 }
