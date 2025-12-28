@@ -12,7 +12,7 @@ This library provides wrapper types that are **safe by default**. When you wrap 
 
 ## Features
 
-- **Safe by default**: `toString()` returns an empty string unless configured otherwise
+- **Safe by default**: `toString()` returns a redacted string, which is empty by default
 - **Format-string integration**: Works with `String.format()` and `Formatter` via `java.util.Formattable`
 - **Precision-based disclosure**: Control exactly how much data to reveal using format precision (e.g., `%.4s`)
 - **Flexible rendering**: Built-in renderers for masking, truncating, and custom redaction strategies
@@ -22,7 +22,7 @@ This library provides wrapper types that are **safe by default**. When you wrap 
 
 ## Requirements
 
-- Java 17 or higher (uses records, pattern matching, sealed classes)
+- Java 17 or higher (uses pattern matching)
 - Gradle for building
 
 ## Installation
@@ -185,20 +185,6 @@ String.format("%s", ein);      // "#####6789"
 String.format("%#s", ein);     // "##-###6789"
 String.format("%.5s", ein);    // "####56789"
 String.format("%#.2s", ein);   // "##-#####89"
-```
-
-### Automatic TIN Type Detection
-
-```java
-import com.maybeitssquid.tin.us.UsTIN;
-
-// Automatically determine SSN vs EIN from format
-UsTIN tin1 = UsTIN.create("123-45-6789");  // Returns SSN
-UsTIN tin2 = UsTIN.create("12-3456789");   // Returns EIN
-
-// For ambiguous 9-digit input, specify preference
-UsTIN tin3 = UsTIN.create("123456789", false);  // SSN (default)
-UsTIN tin4 = UsTIN.create("123456789", true);   // EIN
 ```
 
 ## Format String Reference
