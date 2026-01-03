@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'jvm-test-suite'
 }
 
 group = 'com.maybeitssquid'
@@ -17,10 +18,12 @@ java {
 
 dependencies {
     implementation libs.slf4j.api
-    testImplementation platform(libs.junit.bom)
-    testImplementation libs.bundles.junit
 }
 
-test {
-    useJUnitPlatform()
+testing {
+    suites {
+        test {
+            useJUnitJupiter(libs.versions.junit)
+        }
+    }
 }
