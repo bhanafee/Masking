@@ -3,13 +3,9 @@ package com.maybeitssquid.tin.us;
 import com.maybeitssquid.sensitive.Renderer;
 import com.maybeitssquid.sensitive.Renderers;
 import com.maybeitssquid.sensitive.Segmented;
-import com.maybeitssquid.tin.InvalidTINException;
 import com.maybeitssquid.tin.NationalTIN;
 
 import java.util.Locale;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Abstract base class for United States Taxpayer Identification Numbers.
@@ -53,9 +49,9 @@ public abstract class UsTIN extends Segmented<CharSequence> implements NationalT
     /** The delimiter character used between TIN segments. */
     public static final char DELIMITER = '-';
 
-    private static final Renderer<CharSequence[]> MASKED = Renderers.join(Renderers.masked());
+    private static final Renderer<CharSequence[]> MASKED = Renderers.concatenate(Renderers.mask());
     private static final Renderer<CharSequence[]> MASKED_DELIMITED =
-            Renderers.join(Renderers.masked(c -> c != DELIMITER), DELIMITER);
+            Renderers.delimit(Renderers.mask(c -> c != DELIMITER), DELIMITER);
 
     /**
      * Creates a new US TIN with the specified segments.

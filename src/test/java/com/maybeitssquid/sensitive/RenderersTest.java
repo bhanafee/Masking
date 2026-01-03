@@ -44,39 +44,39 @@ class RenderersTest {
     class Truncated {
         @Test
         void withNegativePrecisionShowsHalf() {
-            Renderer<String> renderer = Renderers.truncated();
+            Renderer<String> renderer = Renderers.truncate();
             // "secret" has 6 chars, redact = (6+1)/2 = 3, shows last 3
             assertEquals("ret", renderer.apply("secret", -1));
         }
 
         @Test
         void withNegativePrecisionRoundsUpForOddLength() {
-            Renderer<String> renderer = Renderers.truncated();
+            Renderer<String> renderer = Renderers.truncate();
             // "hello" has 5 chars, redact = (5+1)/2 = 3, shows last 2
             assertEquals("lo", renderer.apply("hello", -1));
         }
 
         @Test
         void withPrecisionShowsLastNCharacters() {
-            Renderer<String> renderer = Renderers.truncated();
+            Renderer<String> renderer = Renderers.truncate();
             assertEquals("cret", renderer.apply("secret", 4));
         }
 
         @Test
         void withZeroPrecisionReturnsEmpty() {
-            Renderer<String> renderer = Renderers.truncated();
+            Renderer<String> renderer = Renderers.truncate();
             assertEquals("", renderer.apply("secret", 0));
         }
 
         @Test
         void withPrecisionExceedingLengthReturnsAll() {
-            Renderer<String> renderer = Renderers.truncated();
+            Renderer<String> renderer = Renderers.truncate();
             assertEquals("secret", renderer.apply("secret", 100));
         }
 
         @Test
         void handlesEmptyInput() {
-            Renderer<String> renderer = Renderers.truncated();
+            Renderer<String> renderer = Renderers.truncate();
             assertEquals("", renderer.apply("", -1));
         }
     }
@@ -85,32 +85,32 @@ class RenderersTest {
     class MaskedDefault {
         @Test
         void withNegativePrecisionMasksHalf() {
-            Renderer<String> renderer = Renderers.masked();
+            Renderer<String> renderer = Renderers.mask();
             // "secret" has 6 chars, redact = 3
             assertEquals("###ret", renderer.apply("secret", -1));
         }
 
         @Test
         void withPrecisionMasksAllButLastN() {
-            Renderer<String> renderer = Renderers.masked();
+            Renderer<String> renderer = Renderers.mask();
             assertEquals("##cret", renderer.apply("secret", 4));
         }
 
         @Test
         void withZeroPrecisionMasksAll() {
-            Renderer<String> renderer = Renderers.masked();
+            Renderer<String> renderer = Renderers.mask();
             assertEquals("######", renderer.apply("secret", 0));
         }
 
         @Test
         void withPrecisionExceedingLengthMasksNone() {
-            Renderer<String> renderer = Renderers.masked();
+            Renderer<String> renderer = Renderers.mask();
             assertEquals("secret", renderer.apply("secret", 100));
         }
 
         @Test
         void handlesEmptyInput() {
-            Renderer<String> renderer = Renderers.masked();
+            Renderer<String> renderer = Renderers.mask();
             assertEquals("", renderer.apply("", -1));
         }
     }
@@ -119,13 +119,13 @@ class RenderersTest {
     class MaskedWithCustomChar {
         @Test
         void usesCustomMaskCharacter() {
-            Renderer<String> renderer = Renderers.masked('*');
+            Renderer<String> renderer = Renderers.mask('*');
             assertEquals("***ret", renderer.apply("secret", -1));
         }
 
         @Test
         void withZeroPrecisionMasksAllWithCustomChar() {
-            Renderer<String> renderer = Renderers.masked('X');
+            Renderer<String> renderer = Renderers.mask('X');
             assertEquals("XXXXXX", renderer.apply("secret", 0));
         }
     }
@@ -135,7 +135,7 @@ class RenderersTest {
         @Test
         void masksOnlyCharactersMatchingPredicate() {
             IntPredicate isDigit = Character::isDigit;
-            Renderer<String> renderer = Renderers.masked(isDigit, '#');
+            Renderer<String> renderer = Renderers.mask(isDigit, '#');
             // "123-45-6789" has 9 digits, with default precision redact = 5
             // Masks first 5 digits, preserves dashes
             assertEquals("###-##-6789", renderer.apply("123-45-6789", -1));
@@ -144,14 +144,14 @@ class RenderersTest {
         @Test
         void preservesNonMatchingCharacters() {
             IntPredicate isDigit = Character::isDigit;
-            Renderer<String> renderer = Renderers.masked(isDigit, '*');
+            Renderer<String> renderer = Renderers.mask(isDigit, '*');
             assertEquals("***-**-6789", renderer.apply("123-45-6789", -1));
         }
 
         @Test
         void withPrecisionMasksCorrectNumberOfMatchingChars() {
             IntPredicate isDigit = Character::isDigit;
-            Renderer<String> renderer = Renderers.masked(isDigit, '#');
+            Renderer<String> renderer = Renderers.mask(isDigit, '#');
             // 9 digits, precision 4 means redact 5 digits
             assertEquals("###-##-6789", renderer.apply("123-45-6789", 4));
         }
@@ -159,28 +159,28 @@ class RenderersTest {
         @Test
         void withZeroPrecisionMasksAllMatchingChars() {
             IntPredicate isDigit = Character::isDigit;
-            Renderer<String> renderer = Renderers.masked(isDigit, '#');
+            Renderer<String> renderer = Renderers.mask(isDigit, '#');
             assertEquals("###-##-####", renderer.apply("123-45-6789", 0));
         }
 
         @Test
         void withHighPrecisionMasksNone() {
             IntPredicate isDigit = Character::isDigit;
-            Renderer<String> renderer = Renderers.masked(isDigit, '#');
+            Renderer<String> renderer = Renderers.mask(isDigit, '#');
             assertEquals("123-45-6789", renderer.apply("123-45-6789", 100));
         }
 
         @Test
         void handlesInputWithNoMatchingCharacters() {
             IntPredicate isDigit = Character::isDigit;
-            Renderer<String> renderer = Renderers.masked(isDigit, '#');
+            Renderer<String> renderer = Renderers.mask(isDigit, '#');
             assertEquals("no-digits-here", renderer.apply("no-digits-here", -1));
         }
 
         @Test
         void handlesEmptyInput() {
             IntPredicate isDigit = Character::isDigit;
-            Renderer<String> renderer = Renderers.masked(isDigit, '#');
+            Renderer<String> renderer = Renderers.mask(isDigit, '#');
             assertEquals("", renderer.apply("", -1));
         }
     }
