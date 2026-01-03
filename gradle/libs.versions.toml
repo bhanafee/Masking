@@ -1,6 +1,6 @@
 [versions]
-slf4j = "2.0.9"
-junit = "5.10.1"
+slf4j = { require = "[2,)" }
+junit = { strictly = "[5,)", prefer = "6.0.+" }
 
 [libraries]
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
