@@ -44,14 +44,21 @@ import java.util.function.IntPredicate;
  */
 public class Renderers {
 
-    private Renderers() {
-        // EMPTY
-    };
+    /**
+     * Default delimiter character used between segments.
+     */
+    public static final char DEFAULT_DELIMITER = '-';
 
     /**
      * Default replacement character for masking.
      */
     public static final char DEFAULT_MASK = '#';
+
+    private Renderers() {
+        // EMPTY
+    }
+
+    ;
 
     /**
      * Returns a renderer that shows the value completely unredacted.
@@ -83,7 +90,7 @@ public class Renderers {
      * <p>If precision is negative, masks the first half of the characters (rounded up).
      * Otherwise, masks all but the last {@code precision} characters.
      *
-     * @param <T>  the type of CharSequence to render
+     * @param <T>           the type of CharSequence to render
      * @param maskCodePoint the code point of the character to use for masking
      * @return a renderer that masks leading characters
      */
@@ -130,8 +137,8 @@ public class Renderers {
      * The precision applies only to matching characters. For example, masking an SSN
      * "123-45-6789" with a digit predicate and precision 4 would produce "###-##-6789".
      *
-     * @param <T>         the type of CharSequence to render
-     * @param redactable  predicate that returns true for characters that are candidates for redaction
+     * @param <T>           the type of CharSequence to render
+     * @param redactable    predicate that returns true for characters that are candidates for redaction
      * @param maskCodePoint the code point of the character to use for masking
      * @return a renderer that selectively masks characters
      */
@@ -161,9 +168,9 @@ public class Renderers {
     /**
      * Convenience function equivalent to {@code masked(redactable, (int) mask)}.
      *
-     * @param <T>         the type of CharSequence to render
-     * @param redactable  predicate that returns true for characters that are candidates for redaction
-     * @param mask        the character to use for masking
+     * @param <T>        the type of CharSequence to render
+     * @param redactable predicate that returns true for characters that are candidates for redaction
+     * @param mask       the character to use for masking
      * @return a renderer that selectively masks characters
      * @throws IllegalArgumentException if the mask is a surrogate character
      */
@@ -189,15 +196,79 @@ public class Renderers {
      * Returns a renderer that joins an array of CharSequences with a delimiter and applies
      * the given renderer.
      *
-     * @param <T>       the element type of the CharSequence array
-     * @param renderer  the renderer to apply to the joined string
+     * @param <T>                the element type of the CharSequence array
      * @param delimiterCodePoint the character to insert between array elements
+     * @param renderer           the renderer to apply to the joined string
      * @return a renderer for arrays of CharSequences
      */
-    public static <T extends CharSequence> Renderer<T[]> delimit(final Renderer<CharSequence> renderer, final int delimiterCodePoint) {
+    public static <T extends CharSequence> Renderer<T[]> delimit(final int delimiterCodePoint, final Renderer<CharSequence> renderer) {
         if (renderer == null) throw new NullPointerException("Nested renderer is required");
         final String delimiter = Character.toString(delimiterCodePoint);
         return (cs, p) -> cs == null ? "" : renderer.apply(String.join(delimiter, cs), p);
+    }
+
+    /**
+     * Returns a renderer that joins an array of CharSequences with a delimiter and applies a masking renderer.
+     *
+     * @param <T>                the element type of the CharSequence array
+     * @param delimiterCodePoint the character to insert between array elements
+     * @param maskCodePoint      the renderer to apply to the joined string
+     * @return a renderer for arrays of CharSequences
+     */
+    public static <T extends CharSequence> Renderer<T[]> delimit(final int delimiterCodePoint, final int maskCodePoint) {
+        return delimit(delimiterCodePoint, mask(c -> c != delimiterCodePoint, maskCodePoint));
+    }
+
+    /**
+     * Returns a renderer that joins an array of CharSequences with a delimiter and applies a masking renderer.
+     *
+     * @param <T>        the element type of the CharSequence array
+     * @param delimiter  the character to insert between array elements
+     * @param mask       the renderer to apply to the joined string
+     * @return a renderer for arrays of CharSequences
+     */
+    public static <T extends CharSequence> Renderer<T[]> delimit(final char delimiter, final char mask) {
+        if (Character.isSurrogate(mask) || Character.isSurrogate(delimiter))
+            throw new IllegalArgumentException("Use code point to specify a mask or delimiter value outside the Basic Multilingual Plane");
+        return delimit((int) delimiter, (int) mask);
+    }
+
+    /**
+     * Returns a renderer that joins an array of CharSequences with a delimiter and applies a masking renderer using
+     * the {@link #DEFAULT_MASK}.
+     *
+     * @param <T>                the element type of the CharSequence array
+     * @param delimiterCodePoint the character to insert between array elements
+      * @return a renderer for arrays of CharSequences
+     */
+    public static <T extends CharSequence> Renderer<T[]> delimit(final int delimiterCodePoint) {
+        return delimit(delimiterCodePoint, DEFAULT_MASK);
+    }
+
+    /**
+     * Returns a renderer that joins an array of CharSequences with a delimiter and applies a masking renderer using
+     * the {@link #DEFAULT_MASK}.
+     *
+     * @param <T>       the element type of the CharSequence array
+     * @param delimiter the character to insert between array elements
+     * @return a renderer for arrays of CharSequences
+     * @throws IllegalArgumentException if the delimiter is a surrogate character
+     */
+    public static <T extends CharSequence> Renderer<T[]> delimit(final char delimiter) {
+        if (Character.isSurrogate(delimiter))
+            throw new IllegalArgumentException("Use code point to specify a delimiter value outside the Basic Multilingual Plane");
+        return delimit((int) delimiter);
+    }
+
+    /**
+     * Returns a renderer that joins an array of CharSequences with the {@link #DEFAULT_DELIMITER }and applies a
+     * masking renderer using the {@link #DEFAULT_MASK}.
+     *
+     * @param <T>       the element type of the CharSequence array
+     * @return a renderer for arrays of CharSequences
+     */
+    public static <T extends CharSequence> Renderer<T[]> delimit() {
+        return delimit(DEFAULT_DELIMITER);
     }
 
     /**
@@ -208,13 +279,26 @@ public class Renderers {
      * @param renderer  the renderer to apply to the joined string
      * @param delimiter the character to insert between array elements
      * @return a renderer for arrays of CharSequences
-     * @see #delimit(Renderer, int)
      * @throws IllegalArgumentException if the delimiter is a surrogate character
+     * @see #delimit(int, Renderer)
      */
     public static <T extends CharSequence> Renderer<T[]> delimit(final Renderer<CharSequence> renderer, final char delimiter) {
         if (Character.isSurrogate(delimiter))
             throw new IllegalArgumentException("Use code point to specify a delimiter value outside the Basic Multilingual Plane");
-        return delimit(renderer, (int) delimiter);
+        return delimit((int) delimiter, renderer);
+    }
+
+    /**
+     * Returns a renderer that joins an array of CharSequences with the {@link #DEFAULT_DELIMITER} and applies
+     * the given renderer.
+     *
+     * @param <T>       the element type of the CharSequence array
+     * @param renderer  the renderer to apply to the joined string
+     * @return a renderer for arrays of CharSequences
+     * @see #delimit(int, Renderer)
+     */
+    public static <T extends CharSequence> Renderer<T[]> delimit(final Renderer<CharSequence> renderer) {
+        return delimit(DEFAULT_DELIMITER, renderer);
     }
 
     /**

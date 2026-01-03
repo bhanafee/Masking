@@ -48,10 +48,8 @@ public abstract class UsTIN extends Segmented<CharSequence> implements NationalT
 
     /** The delimiter character used between TIN segments. */
     public static final char DELIMITER = '-';
-
     private static final Renderer<CharSequence[]> MASKED = Renderers.concatenate(Renderers.mask());
-    private static final Renderer<CharSequence[]> MASKED_DELIMITED =
-            Renderers.delimit(Renderers.mask(c -> c != DELIMITER), DELIMITER);
+    private static final Renderer<CharSequence[]> MASKED_DELIMITED = Renderers.delimit(DELIMITER);
 
     /**
      * Creates a new US TIN with the specified segments.
