@@ -1,6 +1,37 @@
 [versions]
-slf4j = { require = "[2,)" }
-junit = { strictly = "[5,)", prefer = "6.0.+" }
+# Java toolchain
+java = "21"
+
+# Plugin versions
+spotless = "6.+"
+owasp-dependencycheck = "9.+"
+versions = "0.+"
+openrewrite = "6.+"
+
+# Testing
+junit = "5.+"
+assertj = "3.+"
+mockito = "5.+"
+
+# Logging
+slf4j = "2.+"
 
 [libraries]
+# Testing
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
+
+# Logging
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+
+[bundles]
+testing = ["junit-jupiter", "assertj-core", "mockito-core", "mockito-junit-jupiter"]
+
+[plugins]
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+owasp-dependencycheck = { id = "org.owasp.dependencycheck", version.ref = "owasp-dependencycheck" }
+versions = { id = "com.github.ben-manes.versions", version.ref = "versions" }
+openrewrite = { id = "org.openrewrite.rewrite", version.ref = "openrewrite" }
