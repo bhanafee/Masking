@@ -266,7 +266,7 @@ public class Sensitive<T> implements Formattable {
      */
     @Override
     public final String toString() {
-        return String.format("%s", this);
+        return "%s".formatted(this);
     }
 
     /**

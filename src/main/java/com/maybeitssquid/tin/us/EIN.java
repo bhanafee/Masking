@@ -33,9 +33,9 @@ public final class EIN extends UsTIN {
     private static final String CAMPUS = digits("campus", 2);
     private static final String SERIAL = digits("serial", 7);
 
-    private static final Pattern CAMPUS_PATTERN = Pattern.compile(String.format("^%s$", CAMPUS));
-    private static final Pattern SERIAL_PATTERN = Pattern.compile(String.format("^%s$", SERIAL));
-    private static final Pattern EIN_PATTERN = Pattern.compile(String.format("^%1$s%3$s?%2$s$", CAMPUS, SERIAL, DELIMITER));
+    private static final Pattern CAMPUS_PATTERN = Pattern.compile("^%s$".formatted(CAMPUS));
+    private static final Pattern SERIAL_PATTERN = Pattern.compile("^%s$".formatted(SERIAL));
+    private static final Pattern EIN_PATTERN = Pattern.compile("^%1$s%3$s?%2$s$".formatted(CAMPUS, SERIAL, DELIMITER));
 
     /**
      * Creates an EIN from individual string segments.
@@ -56,7 +56,7 @@ public final class EIN extends UsTIN {
      * @throws InvalidTINException if any segment is out of range
      */
     public EIN(int campus, int serial) {
-        this(String.format("%02d", campus), String.format("%07d", serial));
+        this("%02d".formatted(campus), "%07d".formatted(serial));
     }
 
     /**

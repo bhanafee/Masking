@@ -43,7 +43,7 @@ public abstract class UsTIN extends Segmented<CharSequence> implements NationalT
      * @return a named regex group that matches exactly {@code length} digits
      */
     public static String digits(final String name, final int length) {
-        return String.format("(?<%s>\\d{%d})", name, length);
+        return "(?<%s>\\d{%d})".formatted(name, length);
     }
 
     /** The delimiter character used between TIN segments. */

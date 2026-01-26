@@ -14,72 +14,72 @@ class EINTest {
         @Test
         void defaultFormatMasksValue() {
             EIN ein = new EIN("12-3456789");
-            assertEquals("#####6789", String.format("%s", ein));
+            assertEquals("#####6789", "%s".formatted(ein));
         }
 
         @Test
         void precisionControlsVisibleDigits() {
             EIN ein = new EIN("12-3456789");
-            assertEquals("####56789", String.format("%.5s", ein));
-            assertEquals("###456789", String.format("%.6s", ein));
-            assertEquals("123456789", String.format("%.9s", ein));
+            assertEquals("####56789", "%.5s".formatted(ein));
+            assertEquals("###456789", "%.6s".formatted(ein));
+            assertEquals("123456789", "%.9s".formatted(ein));
         }
 
         @Test
         void zeroPrecisionMasksAll() {
             EIN ein = new EIN("12-3456789");
-            assertEquals("#########", String.format("%.0s", ein));
+            assertEquals("#########", "%.0s".formatted(ein));
         }
 
         @Test
         void highPrecisionShowsAll() {
             EIN ein = new EIN("12-3456789");
-            assertEquals("123456789", String.format("%.100s", ein));
+            assertEquals("123456789", "%.100s".formatted(ein));
         }
 
         @Test
         void alternateFormPreservesDelimiters() {
             EIN ein = new EIN("12-3456789");
-            assertEquals("##-###6789", String.format("%#s", ein));
+            assertEquals("##-###6789", "%#s".formatted(ein));
         }
 
         @Test
         void alternateFormWithPrecision() {
             EIN ein = new EIN("12-3456789");
-            assertEquals("##-##56789", String.format("%#.5s", ein));
-            assertEquals("##-#456789", String.format("%#.6s", ein));
-            assertEquals("12-3456789", String.format("%#.9s", ein));
+            assertEquals("##-##56789", "%#.5s".formatted(ein));
+            assertEquals("##-#456789", "%#.6s".formatted(ein));
+            assertEquals("12-3456789", "%#.9s".formatted(ein));
         }
 
         @Test
         void alternateFormZeroPrecision() {
             EIN ein = new EIN("12-3456789");
-            assertEquals("##-#######", String.format("%#.0s", ein));
+            assertEquals("##-#######", "%#.0s".formatted(ein));
         }
 
         @Test
         void widthPadsOutput() {
             EIN ein = new EIN("12-3456789");
-            assertEquals("    #####6789", String.format("%13s", ein));
+            assertEquals("    #####6789", "%13s".formatted(ein));
         }
 
         @Test
         void leftJustifyWithWidth() {
             EIN ein = new EIN("12-3456789");
-            assertEquals("#####6789    ", String.format("%-13s", ein));
+            assertEquals("#####6789    ", "%-13s".formatted(ein));
         }
 
         @Test
         void uppercaseFlag() {
             EIN ein = new EIN("12-3456789");
             // Digits and # don't change with uppercase, but flag should be accepted
-            assertEquals("#####6789", String.format("%S", ein));
+            assertEquals("#####6789", "%S".formatted(ein));
         }
 
         @Test
         void combinedFlags() {
             EIN ein = new EIN("12-3456789");
-            assertEquals("##-###6789   ", String.format("%#-13s", ein));
+            assertEquals("##-###6789   ", "%#-13s".formatted(ein));
         }
     }
 
@@ -96,7 +96,7 @@ class EINTest {
     @Test
     void constructFromStrings() {
         EIN ein = new EIN("12", "3456789");
-        assertEquals("12-3456789", String.format("%#.9s", ein));
+        assertEquals("12-3456789", "%#.9s".formatted(ein));
     }
 
     @Test
@@ -128,7 +128,7 @@ class EINTest {
     @Test
     void constructFromIntsWithLeadingZeros() {
         EIN ein = new EIN(1, 23);
-        assertEquals("01-0000023", String.format("%#.9s", ein));
+        assertEquals("01-0000023", "%#.9s".formatted(ein));
     }
 
     @Test

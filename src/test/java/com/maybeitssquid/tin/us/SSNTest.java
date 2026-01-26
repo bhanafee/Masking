@@ -14,72 +14,72 @@ class SSNTest {
         @Test
         void defaultFormatMasksValue() {
             SSN ssn = new SSN("123-45-6789");
-            assertEquals("#####6789", String.format("%s", ssn));
+            assertEquals("#####6789", "%s".formatted(ssn));
         }
 
         @Test
         void precisionControlsVisibleDigits() {
             SSN ssn = new SSN("123-45-6789");
-            assertEquals("####56789", String.format("%.5s", ssn));
-            assertEquals("###456789", String.format("%.6s", ssn));
-            assertEquals("123456789", String.format("%.9s", ssn));
+            assertEquals("####56789", "%.5s".formatted(ssn));
+            assertEquals("###456789", "%.6s".formatted(ssn));
+            assertEquals("123456789", "%.9s".formatted(ssn));
         }
 
         @Test
         void zeroPrecisionMasksAll() {
             SSN ssn = new SSN("123-45-6789");
-            assertEquals("#########", String.format("%.0s", ssn));
+            assertEquals("#########", "%.0s".formatted(ssn));
         }
 
         @Test
         void highPrecisionShowsAll() {
             SSN ssn = new SSN("123-45-6789");
-            assertEquals("123456789", String.format("%.100s", ssn));
+            assertEquals("123456789", "%.100s".formatted(ssn));
         }
 
         @Test
         void alternateFormPreservesDelimiters() {
             SSN ssn = new SSN("123-45-6789");
-            assertEquals("###-##-6789", String.format("%#s", ssn));
+            assertEquals("###-##-6789", "%#s".formatted(ssn));
         }
 
         @Test
         void alternateFormWithPrecision() {
             SSN ssn = new SSN("123-45-6789");
-            assertEquals("###-#5-6789", String.format("%#.5s", ssn));
-            assertEquals("###-45-6789", String.format("%#.6s", ssn));
-            assertEquals("123-45-6789", String.format("%#.9s", ssn));
+            assertEquals("###-#5-6789", "%#.5s".formatted(ssn));
+            assertEquals("###-45-6789", "%#.6s".formatted(ssn));
+            assertEquals("123-45-6789", "%#.9s".formatted(ssn));
         }
 
         @Test
         void alternateFormZeroPrecision() {
             SSN ssn = new SSN("123-45-6789");
-            assertEquals("###-##-####", String.format("%#.0s", ssn));
+            assertEquals("###-##-####", "%#.0s".formatted(ssn));
         }
 
         @Test
         void widthPadsOutput() {
             SSN ssn = new SSN("123-45-6789");
-            assertEquals("    #####6789", String.format("%13s", ssn));
+            assertEquals("    #####6789", "%13s".formatted(ssn));
         }
 
         @Test
         void leftJustifyWithWidth() {
             SSN ssn = new SSN("123-45-6789");
-            assertEquals("#####6789    ", String.format("%-13s", ssn));
+            assertEquals("#####6789    ", "%-13s".formatted(ssn));
         }
 
         @Test
         void uppercaseFlag() {
             SSN ssn = new SSN("123-45-6789");
             // Digits and # don't change with uppercase, but flag should be accepted
-            assertEquals("#####6789", String.format("%S", ssn));
+            assertEquals("#####6789", "%S".formatted(ssn));
         }
 
         @Test
         void combinedFlags() {
             SSN ssn = new SSN("123-45-6789");
-            assertEquals("###-##-6789  ", String.format("%#-13s", ssn));
+            assertEquals("###-##-6789  ", "%#-13s".formatted(ssn));
         }
     }
 
@@ -95,7 +95,7 @@ class SSNTest {
     @Test
     void constructFromStrings() {
         SSN ssn = new SSN("123", "45", "6789");
-        assertEquals("123-45-6789", String.format("%#.9s", ssn));
+        assertEquals("123-45-6789", "%#.9s".formatted(ssn));
     }
 
     @Test
@@ -131,7 +131,7 @@ class SSNTest {
     @Test
     void constructFromIntsWithLeadingZeros() {
         SSN ssn = new SSN(1, 2, 3);
-        assertEquals("001-02-0003", String.format("%#.9s", ssn));
+        assertEquals("001-02-0003", "%#.9s".formatted(ssn));
     }
 
     @Test

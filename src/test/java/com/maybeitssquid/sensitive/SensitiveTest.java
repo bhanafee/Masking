@@ -29,16 +29,16 @@ class SensitiveTest {
     @Test
     void formatTo() {
         // Default always renders an empty string
-        assertEquals("", String.format("%s", sensitiveString));
-        assertEquals("", String.format("%s", sensitiveObj));
+        assertEquals("", "%s".formatted(sensitiveString));
+        assertEquals("", "%s".formatted(sensitiveObj));
 
         // Check width
-        assertEquals(" ", String.format("%1s", sensitiveObj));
-        assertEquals("  ", String.format("%2s", sensitiveObj));
-        assertEquals("   ", String.format("%3s", sensitiveObj));
+        assertEquals(" ", "%1s".formatted(sensitiveObj));
+        assertEquals("  ", "%2s".formatted(sensitiveObj));
+        assertEquals("   ", "%3s".formatted(sensitiveObj));
 
         // Can't check justification or upper case using default rendition, use a pass-through
-        assertEquals(containedString, String.format("%s", sensitiveRendered));
+        assertEquals(containedString, "%s".formatted(sensitiveRendered));
     }
 
     @Test
@@ -46,14 +46,14 @@ class SensitiveTest {
         assertEquals("", sensitiveString.toString());
         assertEquals("", sensitiveObj.toString());
 
-        assertEquals("test case", String.format("%s", sensitiveRendered));
-        assertEquals("test case", String.format("%1s", sensitiveRendered));
-        assertEquals(" test case", String.format("%10s", sensitiveRendered));
-        assertEquals("   test case", String.format("%12s", sensitiveRendered));
-        assertEquals("test case ", String.format("%-10s", sensitiveRendered));
-        assertEquals("test case   ", String.format("%-12s", sensitiveRendered));
-        assertEquals("TEST CASE", String.format("%S", sensitiveRendered));
-        assertEquals("test case", String.format("%#s", sensitiveRendered));
+        assertEquals("test case", "%s".formatted(sensitiveRendered));
+        assertEquals("test case", "%1s".formatted(sensitiveRendered));
+        assertEquals(" test case", "%10s".formatted(sensitiveRendered));
+        assertEquals("   test case", "%12s".formatted(sensitiveRendered));
+        assertEquals("test case ", "%-10s".formatted(sensitiveRendered));
+        assertEquals("test case   ", "%-12s".formatted(sensitiveRendered));
+        assertEquals("TEST CASE", "%S".formatted(sensitiveRendered));
+        assertEquals("test case", "%#s".formatted(sensitiveRendered));
     }
 
     @Test

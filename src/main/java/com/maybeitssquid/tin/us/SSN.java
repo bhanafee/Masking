@@ -36,10 +36,10 @@ public final class SSN extends UsTIN {
     private static final String GROUP = digits("group", 2);
     private static final String SERIAL = digits("serial", 4);
 
-    private static final Pattern AREA_PATTERN = Pattern.compile(String.format("^%s$", AREA));
-    private static final Pattern GROUP_PATTERN = Pattern.compile(String.format("^%s$", GROUP));
-    private static final Pattern SERIAL_PATTERN = Pattern.compile(String.format("^%s$", SERIAL));
-    private static final Pattern SSN_PATTERN = Pattern.compile(String.format("^%1$s%4$s?%2$s%4$s?%3$s$", AREA, GROUP, SERIAL, DELIMITER));
+    private static final Pattern AREA_PATTERN = Pattern.compile("^%s$".formatted(AREA));
+    private static final Pattern GROUP_PATTERN = Pattern.compile("^%s$".formatted(GROUP));
+    private static final Pattern SERIAL_PATTERN = Pattern.compile("^%s$".formatted(SERIAL));
+    private static final Pattern SSN_PATTERN = Pattern.compile("^%1$s%4$s?%2$s%4$s?%3$s$".formatted(AREA, GROUP, SERIAL, DELIMITER));
 
     /**
      * Creates an SSN from individual string segments.
@@ -62,7 +62,7 @@ public final class SSN extends UsTIN {
      * @throws InvalidTINException if any segment is out of range
      */
     public SSN(final int area, final int group, final int serial) {
-        this(String.format("%03d", area), String.format("%02d", group), String.format("%04d", serial));
+        this("%03d".formatted(area), "%02d".formatted(group), "%04d".formatted(serial));
     }
 
     /**

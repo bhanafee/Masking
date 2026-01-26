@@ -58,8 +58,6 @@ public class Renderers {
         // EMPTY
     }
 
-    ;
-
     /**
      * Returns a renderer that shows the value completely unredacted.
      *

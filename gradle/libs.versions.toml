@@ -6,7 +6,7 @@ java = "21"
 spotless = "6.+"
 owasp-dependencycheck = "9.+"
 versions = "0.+"
-openrewrite = "6.+"
+openrewrite = "7.+"
 
 # Testing
 junit = "5.+"
