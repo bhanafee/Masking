@@ -10,21 +10,21 @@ jobs:
   build-javadoc:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Needed by the Javadoc publisher action to generate/commit
-      pages: write   # Needed for the deploy-pages action
-      id-token: write # Needed for the deploy-pages action to authenticate
-    
+      contents: write
+      pages: write
+      id-token: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Needed by the Javadoc publisher action
+          fetch-depth: 0
 
       - name: Publish Javadoc
         uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          java-version: 17
+          java-version: 21
           project: gradle
           target-folder: javadoc
           deploy-mode: artifact
