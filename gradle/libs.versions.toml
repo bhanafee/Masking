@@ -5,8 +5,6 @@ java = "21"
 # Plugin versions
 spotless = "6.+"
 owasp-dependencycheck = "9.+"
-versions = "0.+"
-openrewrite = "7.+"
 
 # Testing
 junit = "5.+"
@@ -33,5 +31,3 @@ testing = ["junit-jupiter", "assertj-core", "mockito-core", "mockito-junit-jupit
 [plugins]
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 owasp-dependencycheck = { id = "org.owasp.dependencycheck", version.ref = "owasp-dependencycheck" }
-versions = { id = "com.github.ben-manes.versions", version.ref = "versions" }
-openrewrite = { id = "org.openrewrite.rewrite", version.ref = "openrewrite" }

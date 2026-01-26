@@ -4,8 +4,6 @@ plugins {
     id 'maven-publish'
     alias(libs.plugins.spotless)
     alias(libs.plugins.owasp.dependencycheck)
-    alias(libs.plugins.versions)
-    alias(libs.plugins.openrewrite)
 }
 
 group = 'com.maybeitssquid'
@@ -25,12 +23,6 @@ java {
 
 dependencies {
     implementation libs.slf4j.api
-
-    // OpenRewrite dependencies
-    rewrite platform("org.openrewrite.recipe:rewrite-recipe-bom:latest.release")
-    rewrite("org.openrewrite.recipe:rewrite-migrate-java")
-    rewrite("org.openrewrite.recipe:rewrite-testing-frameworks")
-    rewrite("org.openrewrite.recipe:rewrite-static-analysis")
 }
 
 testing {
@@ -58,17 +50,6 @@ spotless {
 // OWASP dependency check configuration
 dependencyCheck {
     failBuildOnCVSS = 7  // Fail on high/critical vulnerabilities
-}
-
-// OpenRewrite for automated migrations
-rewrite {
-    activeRecipe("org.openrewrite.java.migrate.UpgradeToJava21")
-}
-
-// Dependency updates check
-tasks.named("dependencyUpdates").configure {
-    checkForGradleUpdate = true
-    gradleReleaseChannel = "current"
 }
 
 javadoc {
