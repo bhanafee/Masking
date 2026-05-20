@@ -3,11 +3,11 @@
 java = "21"
 
 # Plugin versions
-spotless = "6.+"
-owasp-dependencycheck = "9.+"
+spotless = "8.+"
+owasp-dependencycheck = "12.+"
 
 # Testing
-junit = "5.+"
+junit = { strictly = "[5,)", prefer = "5.12.+" }
 assertj = "3.+"
 mockito = "5.+"
 

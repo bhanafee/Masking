@@ -21,7 +21,7 @@ repositories {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get()))
+        languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
     }
     withSourcesJar()
     withJavadocJar()
@@ -47,28 +47,24 @@ testing {
     }
 }
 
-// Spotless configuration for code formatting
 spotless {
     java {
-        target 'src/*/java/**/*.java'
         targetExclude 'src/*/java/module-info.java'
+        googleJavaFormat()
         removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()
     }
 }
 
-// OWASP dependency check configuration
 dependencyCheck {
-    failBuildOnCVSS = 7  // Fail on high/critical vulnerabilities
+    failBuildOnCVSS = 7
 }
 
-javadoc {
+tasks.withType(Javadoc).configureEach {
     options {
         encoding = 'UTF-8'
         links "https://docs.oracle.com/en/java/javase/${libs.versions.java.get()}/docs/api/"
-    }
-    if (JavaVersion.current().isJava9Compatible()) {
-        options.addBooleanOption('html5', true)
+        addBooleanOption('html5', true)
     }
 }
