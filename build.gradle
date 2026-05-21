@@ -41,7 +41,8 @@ testing {
         useJUnitJupiter(libs.versions.junit)
         dependencies {
             implementation libs.assertj.core
-            implementation libs.bundles.mockito
+            implementation libs.mockito.core
+            implementation libs.mockito.junit.jupiter
         }
     }
 }
