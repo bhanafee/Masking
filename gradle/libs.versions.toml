@@ -26,7 +26,7 @@ patch-cve-2025-48924 = { module = "org.apache.commons:commons-lang3", version = 
 # Security patches - Other
 patch-cve-2022-45868 = { module = "com.h2database:h2", version = { strictly = "[2.2.220,)", prefer = "2.2.220" } }
 patch-cve-2025-4949 = { module = "org.eclipse.jgit:org.eclipse.jgit", version = { strictly = "[6.10.1.202505221210-r,)", prefer = "6.10.1.202505221210-r" } }
-patch-ghsa-72hv-8253-57qq = { module = "com.fasterxml.jackson.core:jackson-core", version = { strictly = "[2.18.6,)", prefer = "2.18.6" } }
+patch-ghsa-72hv-8253-57qq = { module = "com.fasterxml.jackson.core:jackson-core", version = { strictly = "[2.21.1,)", prefer = "2.21.1" } }
 
 # Testing
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
@@ -38,6 +38,7 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 [bundles]
 security-patches = ["patch-cve-2022-45868", "patch-cve-2025-4949", "patch-cve-2025-48734", "patch-cve-2025-48924", "patch-cve-2026-5598-bcpg", "patch-cve-2026-5598-bcprov", "patch-ghsa-72hv-8253-57qq"]
+mockito = ["mockito-core", "mockito-junit-jupiter"]
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
