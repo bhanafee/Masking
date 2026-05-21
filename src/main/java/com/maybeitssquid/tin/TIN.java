@@ -9,10 +9,10 @@ import java.util.Formattable;
  */
 public interface TIN<I> extends Formattable {
 
-    /**
-     * Returns the issuer of this TIN.
-     *
-     * @return the issuer
-     */
-    I issuer();
+  /**
+   * Returns the issuer of this TIN.
+   *
+   * @return the issuer
+   */
+  I issuer();
 }
