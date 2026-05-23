@@ -1,4 +1,4 @@
-# This workflow builds and tests the Java library across multiple Java versions
+# This workflow builds and tests the Java libraries across multiple Java versions
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
 
 name: CI
@@ -39,4 +39,4 @@ jobs:
         if: always()
         with:
           name: test-results-java-${{ matrix.java }}
-          path: build/reports/tests/
+          path: '**/build/reports/tests/'
