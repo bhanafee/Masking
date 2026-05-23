@@ -2,6 +2,13 @@
 
 A Java library for protecting sensitive data from inadvertent disclosure through logging, traces, and UI rendering.
 
+## Links
+
+- [GitHub repository](https://github.com/bhanafee/Masking)
+- [Javadoc: sensitive](https://bhanafee.github.io/Masking/javadoc/sensitive/)
+- [Javadoc: tin](https://bhanafee.github.io/Masking/javadoc/tin/)
+- [Code of Conduct](https://bhanafee.github.io/Masking/CODE_OF_CONDUCT.html)
+
 ## The Problem
 
 Applications that handle sensitive data such as Social Security Numbers, credit card numbers, and other personally identifiable information (PII) often inadvertently expose this data in logs, stack traces, debug output, or through careless `toString()` invocations. Traditional approaches require developers to remember to mask data at every output point, which is error-prone.
