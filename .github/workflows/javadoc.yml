@@ -35,8 +35,9 @@ jobs:
 
       - name: Prepare Pages artifact
         run: |
-          mkdir -p _site/javadoc
-          cp -r build/docs/javadoc/. _site/javadoc/
+          mkdir -p _site/javadoc/sensitive _site/javadoc/tin
+          cp -r sensitive/build/docs/javadoc/. _site/javadoc/sensitive/
+          cp -r tin/build/docs/javadoc/. _site/javadoc/tin/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
