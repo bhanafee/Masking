@@ -22,7 +22,7 @@ This library provides wrapper types that are **safe by default**. When you wrap 
 
 ## Requirements
 
-- Java 17 or higher (uses pattern matching)
+- Java 17 or higher
 - Gradle for building
 
 ## Installation
@@ -53,7 +53,7 @@ System.out.printf("%s%n", secret);    // prints "" (empty)
 
 // Create a custom sensitive type with masking
 public class MaskedSecret extends Sensitive<String> {
-    private static final Renderer<String> RENDERER = Renderers.masked();
+    private static final Renderer<String> RENDERER = Renderers.mask();
 
     public MaskedSecret(String value) {
         super(value);
@@ -109,19 +109,19 @@ Built-in renderers for common use cases:
 Renderer<String> plain = Renderers.unredacted();
 
 // Truncate leading characters, show trailing
-Renderer<String> truncated = Renderers.truncated();
+Renderer<String> truncated = Renderers.truncate();
 
 // Mask leading characters with '#'
-Renderer<String> masked = Renderers.masked();
+Renderer<String> masked = Renderers.mask();
 
 // Mask with custom character
-Renderer<String> stars = Renderers.masked('*');
+Renderer<String> stars = Renderers.mask('*');
 
 // Selective masking (preserve delimiters)
-Renderer<String> selective = Renderers.masked(Character::isDigit);
+Renderer<String> selective = Renderers.mask(Character::isDigit);
 
 // Join array segments with delimiter, then render
-Renderer<String[]> joined = Renderers.join(Renderers.masked(), '-');
+Renderer<String[]> joined = Renderers.delimit(Renderers.mask(), '-');
 ```
 
 ### Segmented&lt;T&gt;
@@ -131,7 +131,7 @@ A `Sensitive` subclass for values composed of multiple segments (like SSNs or ph
 ```java
 public class PhoneNumber extends Segmented<String> {
     private static final Renderer<String[]> RENDERER =
-        Renderers.join(Renderers.masked(Character::isDigit), '-');
+        Renderers.delimit(Renderers.mask(Character::isDigit), '-');
 
     public PhoneNumber(String... segments) {
         super(segments);
@@ -228,7 +228,7 @@ Sensitive<String> serializable = new Sensitive<>(() -> "secret");
 
 ```java
 public class ApiKey extends Sensitive<String> {
-    private static final Renderer<String> RENDERER = Renderers.masked('*');
+    private static final Renderer<String> RENDERER = Renderers.mask('*');
 
     public ApiKey(String key) {
         super(key);
@@ -245,8 +245,8 @@ public class ApiKey extends Sensitive<String> {
 
 ```java
 public class CreditCard extends Sensitive<String> {
-    private static final Renderer<String> MASKED = Renderers.masked();
-    private static final Renderer<String> TRUNCATED = Renderers.truncated();
+    private static final Renderer<String> MASKED = Renderers.mask();
+    private static final Renderer<String> TRUNCATED = Renderers.truncate();
 
     public CreditCard(String number) {
         super(number);
@@ -269,7 +269,7 @@ public class CreditCard extends Sensitive<String> {
 ```java
 public class PhoneNumber extends Segmented<String> {
     private static final Renderer<String[]> RENDERER =
-        Renderers.join(Renderers.masked(Character::isDigit), '.');
+        Renderers.delimit(Renderers.mask(Character::isDigit), '.');
 
     public PhoneNumber(String areaCode, String exchange, String subscriber) {
         super(new String[]{areaCode, exchange, subscriber});
@@ -298,6 +298,7 @@ com.maybeitssquid.sensitive
 └── com.maybeitssquid.tin          # TIN implementations
     ├── TIN<I>                     # Base TIN interface
     ├── NationalTIN                # National TIN interface
+    ├── InvalidTINException        # Validation exception
     └── us/                        # US implementations
         ├── UsTIN                  # US TIN base class
         ├── SSN                    # Social Security Number
@@ -319,11 +320,11 @@ Ensure that any custom `Supplier<T>` implementations are also thread-safe.
 1. **Define renderers as static constants** to avoid creating new instances:
    ```java
    // Good
-   private static final Renderer<String> RENDERER = Renderers.masked();
+   private static final Renderer<String> RENDERER = Renderers.mask();
 
    // Bad - creates new renderer per call
    protected Renderer<String> getRenderer() {
-       return Renderers.masked();  // Don't do this!
+       return Renderers.mask();  // Don't do this!
    }
    ```
 

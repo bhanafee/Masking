@@ -1,6 +1,7 @@
 [versions]
-# Java toolchain
+# Java toolchain (compiler version) and minimum supported runtime
 java = "21"
+java-release = "17"
 
 # Plugin versions
 spotless = "8.+"
