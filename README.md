@@ -27,11 +27,15 @@ This library provides wrapper types that are **safe by default**. When you wrap 
 
 ## Installation
 
-Add to your `build.gradle`:
+The library is split into two artifacts. Add whichever you need to your `build.gradle`:
 
 ```groovy
 dependencies {
+    // Core masking framework only
     implementation 'com.maybeitssquid:sensitive:1.0-SNAPSHOT'
+
+    // US Taxpayer Identification Numbers (pulls in sensitive transitively)
+    implementation 'com.maybeitssquid:tin:1.0-SNAPSHOT'
 }
 ```
 
@@ -287,22 +291,24 @@ String.format("%.4s", phone);  // "###.###.4567"
 
 ## Module Structure
 
+Two JPMS modules published as separate artifacts:
+
 ```
-com.maybeitssquid.sensitive
-├── com.maybeitssquid.sensitive    # Core framework
-│   ├── Sensitive<T>               # Base container class
-│   ├── Segmented<T>               # Array-backed sensitive data
-│   ├── Renderer<T>                # Rendering interface
-│   └── Renderers                  # Factory for common renderers
-│
-└── com.maybeitssquid.tin          # TIN implementations
-    ├── TIN<I>                     # Base TIN interface
-    ├── NationalTIN                # National TIN interface
-    ├── InvalidTINException        # Validation exception
-    └── us/                        # US implementations
-        ├── UsTIN                  # US TIN base class
-        ├── SSN                    # Social Security Number
-        └── EIN                    # Employer Identification Number
+com.maybeitssquid:sensitive        artifact: com.maybeitssquid.sensitive
+├── Sensitive<T>                   # Base container class
+├── Segmented<T>                   # Array-backed sensitive data
+├── Renderer<T>                    # Rendering interface
+└── Renderers                      # Factory for common renderers
+
+com.maybeitssquid:tin              artifact: com.maybeitssquid.tin
+│   requires com.maybeitssquid.sensitive
+├── TIN<I>                         # Base TIN interface
+├── NationalTIN                    # National TIN interface
+├── InvalidTINException            # Validation exception
+└── us/                            # US implementations
+    ├── UsTIN                      # US TIN base class
+    ├── SSN                        # Social Security Number
+    └── EIN                        # Employer Identification Number
 ```
 
 ## Thread Safety
