@@ -8,19 +8,23 @@
  * <h2>Quick Start</h2>
  *
  * <pre>{@code
- * // Wrap sensitive data
- * Sensitive<String> ssn = new Sensitive<>("123-45-6789");
+ * // Wrap sensitive data - safe by default
+ * Sensitive<String> secret = new Sensitive<>("my-secret");
+ * System.out.println(secret);        // prints ""
+ * System.out.printf("%s%n", secret); // prints ""
  *
- * // Safe by default - prints empty string
- * System.out.println(ssn); // prints ""
+ * // Subclass to add masking; see Renderers for renderer options
+ * public class MaskedValue extends Sensitive<String> {
+ *     private static final Renderer<String> RENDERER = Renderers.mask();
+ *     public MaskedValue(String value) { super(value); }
  *
- * // With rendering control
- * Renderer<String> renderer = Renderers.simple(
- *     Extractor.string(),
- *     RegexRedactors.DEFAULT_MASK
- * );
- * Sensitive<String> maskedSSN = new Sensitive<>(renderer, "123-45-6789");
- * System.out.printf("%.4s", maskedSSN); // prints "###-##-6789"
+ *     @Override
+ *     protected Renderer<String> getRenderer() { return RENDERER; }
+ * }
+ *
+ * MaskedValue masked = new MaskedValue("secret123");
+ * System.out.printf("%s%n", masked);    // prints "#####t123"
+ * System.out.printf("%.0s%n", masked);  // prints "#########" (fully masked)
  * }</pre>
  *
  * @see com.maybeitssquid.sensitive.Sensitive

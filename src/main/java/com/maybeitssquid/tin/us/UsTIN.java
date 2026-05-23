@@ -22,13 +22,13 @@ import java.util.Locale;
  *
  * <h2>Rendering</h2>
  *
- * <p>By default, US TINs are rendered with all digits masked (no delimiters). The alternate form
- * ({@code %#s}) renders with delimiters preserved:
+ * <p>By default, US TINs are rendered with the leading digits masked (no delimiters). The alternate
+ * form ({@code %#s}) renders with delimiters preserved:
  *
  * <pre>{@code
  * UsTIN tin = new SSN("123-45-6789");
- * String.format("%s", tin);   // "#########"
- * String.format("%#s", tin);  // "###-##-####"
+ * String.format("%s", tin);   // "#####6789"
+ * String.format("%#s", tin);  // "###-##-6789"
  * }</pre>
  *
  * @see SSN

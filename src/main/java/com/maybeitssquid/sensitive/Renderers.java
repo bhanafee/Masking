@@ -14,7 +14,7 @@ import java.util.function.IntPredicate;
  * <pre>{@code
  * // Simple masking subclass - mask leading characters, show last 4
  * public class AccountNumber extends Sensitive<String> {
- *     private static final Renderer<String> RENDERER = Renderers.masked();
+ *     private static final Renderer<String> RENDERER = Renderers.mask();
  *
  *     public AccountNumber(String value) { super(value); }
  *
@@ -28,7 +28,7 @@ import java.util.function.IntPredicate;
  * // Selective masking - preserve delimiters, mask only digits
  * public class SSN extends Sensitive<String> {
  *     private static final Renderer<String> RENDERER =
- *         Renderers.masked(Character::isDigit);
+ *         Renderers.mask(Character::isDigit);
  *
  *     public SSN(String value) { super(value); }
  *
@@ -100,7 +100,7 @@ public class Renderers {
   }
 
   /**
-   * Convenience function equivalent to {@code masked((int) mask)}.
+   * Convenience function equivalent to {@code mask((int) mask)}.
    *
    * @param <T> the type of CharSequence to render
    * @param mask the character to use for masking. The character must be on the Basic Multilingual
@@ -117,7 +117,7 @@ public class Renderers {
   }
 
   /**
-   * Convenience function equivalent to {@code masked(DEFAULT_MASK)}.
+   * Convenience function equivalent to {@code mask(DEFAULT_MASK)}.
    *
    * @param <T> the type of CharSequence to render
    * @return a renderer that masks leading characters with '#'
@@ -165,7 +165,7 @@ public class Renderers {
   }
 
   /**
-   * Convenience function equivalent to {@code masked(redactable, (int) mask)}.
+   * Convenience function equivalent to {@code mask(redactable, (int) mask)}.
    *
    * @param <T> the type of CharSequence to render
    * @param redactable predicate that returns true for characters that are candidates for redaction
@@ -182,7 +182,7 @@ public class Renderers {
   }
 
   /**
-   * Convenience function equivalent to {@code masked(redactable, DEFAULT_MASK}.
+   * Convenience function equivalent to {@code mask(redactable, DEFAULT_MASK}.
    *
    * @param <T> the type of CharSequence to render
    * @param maskable predicate that returns true for characters that should be masked

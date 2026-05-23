@@ -28,7 +28,7 @@ import java.util.function.Supplier;
  *
  * <pre>{@code
  * public class MaskedSecret extends Sensitive<String> {
- *     private static final Renderer<String> RENDERER = Renderers.masked();
+ *     private static final Renderer<String> RENDERER = Renderers.mask();
  *
  *     public MaskedSecret(String value) {
  *         super(value);
@@ -157,7 +157,7 @@ public class Sensitive<T> implements Formattable {
    *
    * <pre>{@code
    * // Good: shared static singleton
-   * private static final Renderer<String> RENDERER = Renderers.masked();
+   * private static final Renderer<String> RENDERER = Renderers.mask();
    *
    * @Override
    * protected Renderer<String> getRenderer() {
@@ -165,7 +165,7 @@ public class Sensitive<T> implements Formattable {
    * }
    *
    * // Bad: non-static instance field causes per-instance renderer creation
-   * private final Renderer<String> renderer = Renderers.masked();
+   * private final Renderer<String> renderer = Renderers.mask();
    *
    * @Override
    * protected Renderer<String> getRenderer() {
@@ -175,7 +175,7 @@ public class Sensitive<T> implements Formattable {
    * // Bad: dynamic creation on each call
    * @Override
    * protected Renderer<String> getRenderer() {
-   *     return Renderers.masked();
+   *     return Renderers.mask();
    * }
    * }</pre>
    *
@@ -196,14 +196,14 @@ public class Sensitive<T> implements Formattable {
    *
    * <pre>{@code
    * public class MySecret extends Sensitive<String> {
-   *     private static final Renderer<String> TRUNCATED = Renderers.truncated();
-   *     private static final Renderer<String> MASKED = Renderers.masked('?');
+   *     private static final Renderer<String> TRUNCATED = Renderers.truncate();
+   *     private static final Renderer<String> MASKED = Renderers.mask('?');
    *
    *     @Override
-   *     protected Renderer<String> getRenderer() { return MASKED; }
+   *     protected Renderer<String> getRenderer() { return TRUNCATED; }
    *
    *     @Override
-   *     protected Renderer<String> getAltRenderer() { return UNMASKED; }
+   *     protected Renderer<String> getAltRenderer() { return MASKED; }
    * }
    *
    * MySecret secret = new MySecret("secret123");

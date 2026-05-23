@@ -15,13 +15,13 @@ import java.util.regex.Pattern;
  *   <li>SSSS is the serial number (4 digits)
  * </ul>
  *
- * <p>This class provides automatic masking when formatted. By default, the SSN is rendered with all
- * digits masked. Use the alternate form ({@code %#s}) to show delimiters:
+ * <p>This class provides automatic masking when formatted. By default, the leading digits of the
+ * SSN are masked. Use the alternate form ({@code %#s}) to show delimiters:
  *
  * <pre>{@code
  * SSN ssn = new SSN("123-45-6789");
- * String.format("%s", ssn);      // Returns "#########"
- * String.format("%#s", ssn);     // Returns "###-##-####"
+ * String.format("%s", ssn);      // Returns "#####6789"
+ * String.format("%#s", ssn);     // Returns "###-##-6789"
  * String.format("%.4s", ssn);    // Returns "#####6789"
  * String.format("%#.4s", ssn);   // Returns "###-##-6789"
  * }</pre>

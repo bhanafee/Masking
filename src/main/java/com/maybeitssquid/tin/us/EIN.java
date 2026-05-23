@@ -14,13 +14,13 @@ import java.util.regex.Pattern;
  *   <li>SSSSSSS is the serial number (7 digits)
  * </ul>
  *
- * <p>This class provides automatic masking when formatted. By default, the EIN is rendered with all
- * digits masked. Use the alternate form ({@code %#s}) to show delimiters:
+ * <p>This class provides automatic masking when formatted. By default, the leading digits of the
+ * EIN are masked. Use the alternate form ({@code %#s}) to show delimiters:
  *
  * <pre>{@code
  * EIN ein = new EIN("12-3456789");
- * String.format("%s", ein);      // Returns "#########"
- * String.format("%#s", ein);     // Returns "##-#######"
+ * String.format("%s", ein);      // Returns "#####6789"
+ * String.format("%#s", ein);     // Returns "##-###6789"
  * String.format("%.4s", ein);    // Returns "#####6789"
  * String.format("%#.4s", ein);   // Returns "##-###6789"
  * }</pre>
