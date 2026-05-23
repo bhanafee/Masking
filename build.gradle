@@ -5,70 +5,74 @@ buildscript {
 }
 
 plugins {
-    id 'java-library'
-    id 'jvm-test-suite'
-    id 'maven-publish'
-    alias(libs.plugins.spotless)
-    alias(libs.plugins.owasp.dependencycheck)
+    alias(libs.plugins.spotless) apply false
+    alias(libs.plugins.owasp.dependencycheck) apply false
 }
 
-group = 'com.maybeitssquid'
-version = '1.0-SNAPSHOT'
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'jvm-test-suite'
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.diffplug.spotless'
+    apply plugin: 'org.owasp.dependencycheck'
 
-repositories {
-    mavenCentral()
-}
+    group = 'com.maybeitssquid'
+    version = '1.0-SNAPSHOT'
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(libs.versions.java.asProvider().get())
+    repositories {
+        mavenCentral()
     }
-    withSourcesJar()
-    withJavadocJar()
-}
 
-dependencies {
-    constraints {
-        libs.bundles.security.patches.get().each {
-            add('implementation', it)
-        }
-    }
-    implementation libs.slf4j.api
-}
-
-testing {
-    suites.test {
-        useJUnitJupiter(libs.versions.junit)
-        dependencies {
-            implementation libs.assertj.core
-            implementation libs.mockito.core
-            implementation libs.mockito.junit.jupiter
-        }
-    }
-}
-
-spotless {
     java {
-        targetExclude 'src/*/java/module-info.java'
-        googleJavaFormat()
-        removeUnusedImports()
-        trimTrailingWhitespace()
-        endWithNewline()
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(libs.versions.java.asProvider().get())
+        }
+        withSourcesJar()
+        withJavadocJar()
     }
-}
 
-dependencyCheck {
-    failBuildOnCVSS = 7
-}
+    dependencies {
+        constraints {
+            libs.bundles.security.patches.get().each {
+                add('implementation', it)
+            }
+        }
+    }
 
-tasks.withType(JavaCompile).configureEach {
-    options.release = libs.versions.java.release.get().toInteger()
-}
+    testing {
+        suites.test {
+            useJUnitJupiter(libs.versions.junit)
+            dependencies {
+                implementation libs.assertj.core
+                implementation libs.mockito.core
+                implementation libs.mockito.junit.jupiter
+            }
+        }
+    }
 
-tasks.withType(Javadoc).configureEach {
-    options {
-        encoding = 'UTF-8'
-        links "https://docs.oracle.com/en/java/javase/${libs.versions.java.asProvider().get()}/docs/api/"
-        addBooleanOption('html5', true)
+    spotless {
+        java {
+            targetExclude 'src/*/java/module-info.java'
+            googleJavaFormat()
+            removeUnusedImports()
+            trimTrailingWhitespace()
+            endWithNewline()
+        }
+    }
+
+    dependencyCheck {
+        failBuildOnCVSS = 7
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.release = libs.versions.java.release.get().toInteger()
+    }
+
+    tasks.withType(Javadoc).configureEach {
+        options {
+            encoding = 'UTF-8'
+            links "https://docs.oracle.com/en/java/javase/${libs.versions.java.asProvider().get()}/docs/api/"
+            addBooleanOption('html5', true)
+        }
     }
 }
