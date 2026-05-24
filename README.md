@@ -184,6 +184,41 @@ public class PhoneNumber extends Segmented<String> {
 }
 ```
 
+## Format String Reference
+
+| Format | Description | Example Input  | Example Output |
+|--------|-------------|----------------|----------------|
+| `%s` | Default rendering | SSN            | `#####6789`    |
+| `%#s` | Alternate form (with delimiters) | SSN            | `###-##-6789`  |
+| `%.Ns` | Show last N characters | `%.3s` on SSN  | `######789`    |
+| `%#.Ns` | Alternate + precision | `%#.5s` on SSN | `###-#5-6789`  |
+| `%Ws` | Minimum width W | `%12s`         | ` #####6789`   |
+| `%-Ws` | Left-justified width | `%-12s`        | `#####6789   ` |
+| `%S` | Uppercase | SSN            | `#####6789`    |
+
+## Serialization Protection
+
+By default, `Sensitive` objects **cannot be serialized**. This prevents accidental exposure of sensitive data through:
+- Session serialization
+- Distributed caches (Redis, Memcached)
+- RPC frameworks
+- Logging frameworks that serialize objects
+
+```java
+Sensitive<String> secret = new Sensitive<>("password");
+
+// This will throw NotSerializableException
+ObjectOutputStream oos = new ObjectOutputStream(stream);
+oos.writeObject(secret);  // Throws!
+```
+
+If you need serialization, use a custom supplier:
+
+```java
+// Lambda suppliers ARE serializable (value survives serialization)
+Sensitive<String> serializable = new Sensitive<>(() -> "secret");
+```
+
 ## Built-in TIN Implementations
 
 The library includes ready-to-use implementations for US Taxpayer Identification Numbers:
@@ -225,41 +260,6 @@ String.format("%s", ein);      // "#####6789"
 String.format("%#s", ein);     // "##-###6789"
 String.format("%.5s", ein);    // "####56789"
 String.format("%#.2s", ein);   // "##-#####89"
-```
-
-## Format String Reference
-
-| Format | Description | Example Input  | Example Output |
-|--------|-------------|----------------|----------------|
-| `%s` | Default rendering | SSN            | `#####6789`    |
-| `%#s` | Alternate form (with delimiters) | SSN            | `###-##-6789`  |
-| `%.Ns` | Show last N characters | `%.3s` on SSN  | `######789`    |
-| `%#.Ns` | Alternate + precision | `%#.5s` on SSN | `###-#5-6789`  |
-| `%Ws` | Minimum width W | `%12s`         | ` #####6789`   |
-| `%-Ws` | Left-justified width | `%-12s`        | `#####6789   ` |
-| `%S` | Uppercase | SSN            | `#####6789`    |
-
-## Serialization Protection
-
-By default, `Sensitive` objects **cannot be serialized**. This prevents accidental exposure of sensitive data through:
-- Session serialization
-- Distributed caches (Redis, Memcached)
-- RPC frameworks
-- Logging frameworks that serialize objects
-
-```java
-Sensitive<String> secret = new Sensitive<>("password");
-
-// This will throw NotSerializableException
-ObjectOutputStream oos = new ObjectOutputStream(stream);
-oos.writeObject(secret);  // Throws!
-```
-
-If you need serialization, use a custom supplier:
-
-```java
-// Lambda suppliers ARE serializable (value survives serialization)
-Sensitive<String> serializable = new Sensitive<>(() -> "secret");
 ```
 
 ## Creating Custom Sensitive Types
