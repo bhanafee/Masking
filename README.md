@@ -9,6 +9,7 @@ A Java library for protecting sensitive data from inadvertent disclosure through
 - [Javadoc: tin](https://bhanafee.github.io/Masking/javadoc/tin/)
 - [Apache 2.0 License](https://bhanafee.github.io/Masking/LICENSE)
 - [Code of Conduct](https://bhanafee.github.io/Masking/CODE_OF_CONDUCT.html)
+- [Claude Code Guide](https://bhanafee.github.io/Masking/CLAUDE.html)
 
 ## The Problem
 
