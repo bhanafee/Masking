@@ -18,6 +18,22 @@ Applications that handle sensitive data such as Social Security Numbers, credit 
 
 This library provides wrapper types that are **safe by default**. When you wrap sensitive data in a `Sensitive` container, it cannot be accidentally exposed through `toString()` or standard formatting operations. The data is only revealed when explicitly requested with the appropriate precision level.
 
+```mermaid
+sequenceDiagram
+    participant Caller
+    participant Fmt as String.format / Formatter
+    participant S as Sensitive.formatTo()
+    participant R as Renderer
+
+    Caller->>Fmt: format("%.4s", ssn)
+    Fmt->>S: formatTo(formatter, flags, width, precision=4)
+    S->>S: flags has '#'? → getAltRenderer() else getRenderer()
+    S->>R: apply(value, precision=4)
+    R-->>S: "###-##-6789" (CharSequence)
+    S-->>Fmt: append masked output
+    Fmt-->>Caller: "###-##-6789"
+```
+
 ## Features
 
 - **Safe by default**: `toString()` returns a redacted string, which is empty by default
@@ -111,6 +127,18 @@ public interface Renderer<T> {
 The `precision` parameter controls how much data to reveal:
 - `precision = -1`: Default behavior (typically shows half the data)
 - `precision >= 0`: Number of unredacted characters to show
+
+```mermaid
+flowchart TD
+    Input["Format call\n%[flags][width][.precision]s"]
+    Input --> AltFlag{"# flag?"}
+    AltFlag -->|yes| AltR["getAltRenderer()\ne.g. adds delimiters"]
+    AltFlag -->|no| DefR["getRenderer()\ne.g. Renderers.mask()"]
+    AltR & DefR --> Prec{"precision"}
+    Prec -->|"omitted (-1)"| Half["Default — show last half\n#####6789"]
+    Prec -->|"0"| Full["Fully masked\n#########"]
+    Prec -->|"N"| LastN["Show last N chars\n######789"]
+```
 
 ### Renderers Factory
 
@@ -300,6 +328,49 @@ String.format("%.4s", phone);  // "###.###.4567"
 ## Module Structure
 
 Two JPMS modules published as separate artifacts:
+
+```mermaid
+classDiagram
+    class Sensitive~T~ {
+        <<open>>
+        +toString() String
+        +formatTo(formatter, flags, width, precision) void
+        #getRenderer() Renderer~T~
+        #getAltRenderer() Renderer~T~
+    }
+
+    class Segmented~T~ {
+        <<open>>
+    }
+
+    class Renderer~T~ {
+        <<interface>>
+        +apply(value T, precision int) CharSequence
+    }
+
+    class Renderers {
+        <<factory>>
+        +unredacted() Renderer~String~
+        +truncate() Renderer~String~
+        +mask() Renderer~String~
+        +mask(char) Renderer~String~
+        +mask(Predicate) Renderer~String~
+        +delimit(Renderer, char) Renderer~String[]~
+    }
+
+    class UsTIN {
+        <<abstract>>
+    }
+
+    class SSN
+    class EIN
+
+    Sensitive~T~ <|-- Segmented~T~
+    Sensitive~T~ ..> Renderer~T~ : uses
+    Segmented~T~ <|-- UsTIN
+    UsTIN <|-- SSN
+    UsTIN <|-- EIN
+```
 
 ```
 com.maybeitssquid:sensitive        artifact: com.maybeitssquid.sensitive
