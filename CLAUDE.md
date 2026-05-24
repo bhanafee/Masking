@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project overview
+
+A Java library for protecting sensitive data (SSNs, credit card numbers, PII) from inadvertent disclosure through logging, stack traces, and `toString()` calls. Wrapper types are safe by default — data is only revealed when explicitly requested via format-string precision. Published as two artifacts: `com.maybeitssquid:sensitive` (core framework) and `com.maybeitssquid:tin` (US Taxpayer Identification Numbers).
+
 ## Commands
 
 ```bash
@@ -38,7 +42,7 @@ Two JPMS modules published as separate Gradle subprojects:
 
 ### Security patches pattern
 
-`gradle/libs.versions.toml` uses a `patch-*` naming convention for CVE pins in `[libraries]` and collects them in the `security-patches` bundle in `[bundles]`. The root `build.gradle` applies these as `implementation` constraints across all subprojects. New CVE patches follow this same pattern.
+`gradle/libs.versions.toml` uses a `patch-*` naming convention for CVE pins in `[libraries]` and collects them in the `security-patches` bundle in `[bundles]`. The root `build.gradle` applies these as `implementation` constraints across all subprojects. `settings.gradle` also loads them into the buildscript classpath via regex. New CVE patches follow the `patch-cve-XXXX-NNNNN` naming convention.
 
 ## Code style
 
