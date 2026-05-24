@@ -59,6 +59,7 @@ jobs:
           mkdir -p _site/javadoc/sensitive _site/javadoc/tin
           cp -r sensitive/build/docs/javadoc/. _site/javadoc/sensitive/
           cp -r tin/build/docs/javadoc/. _site/javadoc/tin/
+          cp LICENSE _site/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
