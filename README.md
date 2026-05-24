@@ -7,7 +7,7 @@ A Java library for protecting sensitive data from inadvertent disclosure through
 - [GitHub repository](https://github.com/bhanafee/Masking)
 - [Javadoc: sensitive](https://bhanafee.github.io/Masking/javadoc/sensitive/)
 - [Javadoc: tin](https://bhanafee.github.io/Masking/javadoc/tin/)
-- [License](https://bhanafee.github.io/Masking/LICENSE)
+- [Apache 2.0 License](https://bhanafee.github.io/Masking/LICENSE)
 - [Code of Conduct](https://bhanafee.github.io/Masking/CODE_OF_CONDUCT.html)
 
 ## The Problem
