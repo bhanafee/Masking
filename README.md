@@ -47,7 +47,7 @@ sequenceDiagram
 
 ## Requirements
 
-- Java 17 or higher
+- Java 17 or higher (Java 25 toolchain used for compilation)
 - Gradle for building
 
 ## Installation
