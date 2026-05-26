@@ -421,3 +421,14 @@ Ensure that any custom `Supplier<T>` implementations are also thread-safe.
 4. **Use precision sparingly** - only reveal data when absolutely necessary
 
 5. **Consider alternate forms** for human-readable output while keeping default output safe
+
+## Technologies
+
+| Component | Version |
+|-----------|---------|
+| Java | 25 (toolchain; runs on 17+) |
+| Gradle | 9.5.1 |
+| SLF4J | 2.+ |
+| JUnit | 5.12.+ |
+| AssertJ | 3.+ |
+| Mockito | 5.+ |
