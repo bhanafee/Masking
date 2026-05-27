@@ -34,8 +34,8 @@ jobs:
           distribution: adopt
           cache: gradle
 
-      - name: Generate Javadoc
-        run: ./gradlew javadoc
+      - name: Run tests and generate reports
+        run: ./gradlew test jacocoTestReport javadoc
 
       - name: Install pandoc
         run: sudo apt-get install -y --no-install-recommends pandoc
@@ -72,6 +72,18 @@ jobs:
           cp -r sensitive/build/docs/javadoc/. _site/javadoc/sensitive/
           cp -r tin/build/docs/javadoc/. _site/javadoc/tin/
           cp LICENSE _site/
+
+      - name: Copy test results
+        run: |
+          mkdir -p _site/tests/sensitive _site/tests/tin
+          cp -r sensitive/build/reports/tests/test/. _site/tests/sensitive/
+          cp -r tin/build/reports/tests/test/. _site/tests/tin/
+
+      - name: Copy coverage report
+        run: |
+          mkdir -p _site/coverage/sensitive _site/coverage/tin
+          cp -r sensitive/build/reports/jacoco/test/html/. _site/coverage/sensitive/
+          cp -r tin/build/reports/jacoco/test/html/. _site/coverage/tin/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
