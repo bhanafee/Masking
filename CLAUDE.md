@@ -17,7 +17,9 @@ A Java library for protecting sensitive data (SSNs, credit card numbers, PII) fr
 ./gradlew dependencyCheckAnalyze  # OWASP CVE scan (fails at CVSS >= 7)
 ```
 
-The build compiles targeting Java 17 (`java-release = "17"`) using a Java 21 toolchain. CI also tests on Java 25.
+On Windows, use `gradlew.bat` (or `.\gradlew` in PowerShell).
+
+The build uses a Java 25 toolchain and compiles to Java 17 bytecode (`release = "17"`). CI tests on Java 17, 21, and 25 on every push/PR to `main`.
 
 ## Architecture
 
