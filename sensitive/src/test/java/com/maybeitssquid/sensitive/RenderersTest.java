@@ -8,11 +8,181 @@ import org.junit.jupiter.api.Test;
 
 class RenderersTest {
 
+  /** A high surrogate code unit, used to verify surrogate validation. */
+  private static final char SURROGATE = '\uD800';
+
+  private static CharSequence[] segments() {
+    return new CharSequence[] {"123", "45", "6789"};
+  }
+
   @Nested
   class Constants {
     @Test
     void defaultMaskIsHash() {
       assertEquals('#', Renderers.DEFAULT_MASK);
+    }
+
+    @Test
+    void defaultDelimiterIsDash() {
+      assertEquals('-', Renderers.DEFAULT_DELIMITER);
+    }
+  }
+
+  @Nested
+  class MaskSurrogateValidation {
+    @Test
+    void maskWithSurrogateCharThrows() {
+      IllegalArgumentException ex =
+          assertThrows(IllegalArgumentException.class, () -> Renderers.mask(SURROGATE));
+      assertTrue(ex.getMessage().contains("Basic Multilingual Plane"));
+    }
+
+    @Test
+    void maskWithPredicateAndSurrogateCharThrows() {
+      assertThrows(
+          IllegalArgumentException.class, () -> Renderers.mask(Character::isDigit, SURROGATE));
+    }
+
+    @Test
+    void maskWithNonSurrogateCharIsEquivalentToCodePoint() {
+      Renderer<String> renderer = Renderers.mask('*');
+      assertEquals("***ret", renderer.apply("secret", -1));
+    }
+
+    @Test
+    void maskWithPredicateAndNonSurrogateChar() {
+      Renderer<String> renderer = Renderers.mask(Character::isDigit, '*');
+      assertEquals("***-**-6789", renderer.apply("123-45-6789", -1));
+    }
+  }
+
+  @Nested
+  class MaskWithPredicateConvenience {
+    @Test
+    void usesDefaultMaskCharacter() {
+      Renderer<String> renderer = Renderers.mask(Character::isDigit);
+      assertEquals("###-##-6789", renderer.apply("123-45-6789", -1));
+    }
+
+    @Test
+    void nullPredicateTreatsEveryCharacterAsRedactable() {
+      Renderer<String> renderer = Renderers.mask((IntPredicate) null, '#');
+      // With precision 0 every character is masked, confirming the null predicate matches all.
+      assertEquals("######", renderer.apply("secret", 0).toString());
+    }
+  }
+
+  @Nested
+  class Delimit {
+    @Test
+    void joinsWithDelimiterAndAppliesCustomRendererCodePoint() {
+      Renderer<CharSequence[]> renderer =
+          Renderers.delimit((int) '-', Renderers.<CharSequence>unredacted());
+      assertEquals("123-45-6789", renderer.apply(segments(), -1).toString());
+    }
+
+    @Test
+    void nullNestedRendererThrows() {
+      assertThrows(NullPointerException.class, () -> Renderers.delimit((int) '-', null));
+    }
+
+    @Test
+    void nullInputRendersEmpty() {
+      Renderer<CharSequence[]> renderer = Renderers.delimit((int) '-');
+      assertEquals("", renderer.apply(null, -1).toString());
+    }
+
+    @Test
+    void codePointDelimiterAndMask() {
+      Renderer<CharSequence[]> renderer = Renderers.delimit((int) '-', (int) '*');
+      assertEquals("***-**-6789", renderer.apply(segments(), -1).toString());
+    }
+
+    @Test
+    void charDelimiterAndMask() {
+      Renderer<CharSequence[]> renderer = Renderers.delimit('-', '*');
+      assertEquals("***-**-6789", renderer.apply(segments(), -1).toString());
+    }
+
+    @Test
+    void charDelimiterAndMaskRejectsSurrogateMask() {
+      assertThrows(IllegalArgumentException.class, () -> Renderers.delimit('-', SURROGATE));
+    }
+
+    @Test
+    void charDelimiterAndMaskRejectsSurrogateDelimiter() {
+      assertThrows(IllegalArgumentException.class, () -> Renderers.delimit(SURROGATE, '*'));
+    }
+
+    @Test
+    void codePointDelimiterUsesDefaultMask() {
+      Renderer<CharSequence[]> renderer = Renderers.delimit((int) '-');
+      assertEquals("###-##-6789", renderer.apply(segments(), -1).toString());
+    }
+
+    @Test
+    void charDelimiterUsesDefaultMask() {
+      Renderer<CharSequence[]> renderer = Renderers.delimit('-');
+      assertEquals("###-##-6789", renderer.apply(segments(), -1).toString());
+    }
+
+    @Test
+    void charDelimiterRejectsSurrogate() {
+      assertThrows(IllegalArgumentException.class, () -> Renderers.delimit(SURROGATE));
+    }
+
+    @Test
+    void noArgumentsUsesDefaultDelimiterAndMask() {
+      Renderer<CharSequence[]> renderer = Renderers.delimit();
+      assertEquals("###-##-6789", renderer.apply(segments(), -1).toString());
+    }
+
+    @Test
+    void customRendererWithCharDelimiter() {
+      Renderer<CharSequence[]> renderer =
+          Renderers.delimit(Renderers.<CharSequence>unredacted(), '/');
+      assertEquals("123/45/6789", renderer.apply(segments(), -1).toString());
+    }
+
+    @Test
+    void customRendererWithCharDelimiterRejectsSurrogate() {
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> Renderers.delimit(Renderers.<CharSequence>unredacted(), SURROGATE));
+    }
+
+    @Test
+    void customRendererUsesDefaultDelimiter() {
+      Renderer<CharSequence[]> renderer = Renderers.delimit(Renderers.<CharSequence>unredacted());
+      assertEquals("123-45-6789", renderer.apply(segments(), -1).toString());
+    }
+  }
+
+  @Nested
+  class Concatenate {
+    @Test
+    void joinsWithoutDelimiterAndAppliesRenderer() {
+      Renderer<CharSequence[]> renderer = Renderers.concatenate(Renderers.<CharSequence>mask());
+      // "123456789" has 9 chars, redact 5 with default precision
+      assertEquals("#####6789", renderer.apply(segments(), -1).toString());
+    }
+
+    @Test
+    void appliesUnredactedRenderer() {
+      Renderer<CharSequence[]> renderer =
+          Renderers.concatenate(Renderers.<CharSequence>unredacted());
+      assertEquals("123456789", renderer.apply(segments(), -1).toString());
+    }
+
+    @Test
+    void nullNestedRendererThrows() {
+      assertThrows(NullPointerException.class, () -> Renderers.concatenate(null));
+    }
+
+    @Test
+    void nullInputRendersEmpty() {
+      Renderer<CharSequence[]> renderer = Renderers.concatenate(Renderers.<CharSequence>mask());
+      assertEquals("", renderer.apply(null, -1).toString());
     }
   }
 
@@ -36,6 +206,12 @@ class RenderersTest {
     void handlesEmptyInput() {
       Renderer<String> renderer = Renderers.unredacted();
       assertEquals("", renderer.apply("", -1));
+    }
+
+    @Test
+    void handlesNullInput() {
+      Renderer<String> renderer = Renderers.unredacted();
+      assertEquals("", renderer.apply(null, -1));
     }
   }
 
@@ -78,6 +254,12 @@ class RenderersTest {
       Renderer<String> renderer = Renderers.truncate();
       assertEquals("", renderer.apply("", -1));
     }
+
+    @Test
+    void handlesNullInput() {
+      Renderer<String> renderer = Renderers.truncate();
+      assertEquals("", renderer.apply(null, -1));
+    }
   }
 
   @Nested
@@ -111,6 +293,12 @@ class RenderersTest {
     void handlesEmptyInput() {
       Renderer<String> renderer = Renderers.mask();
       assertEquals("", renderer.apply("", -1));
+    }
+
+    @Test
+    void handlesNullInput() {
+      Renderer<String> renderer = Renderers.mask();
+      assertEquals("", renderer.apply(null, -1));
     }
   }
 
@@ -181,6 +369,13 @@ class RenderersTest {
       IntPredicate isDigit = Character::isDigit;
       Renderer<String> renderer = Renderers.mask(isDigit, '#');
       assertEquals("", renderer.apply("", -1));
+    }
+
+    @Test
+    void handlesNullInput() {
+      IntPredicate isDigit = Character::isDigit;
+      Renderer<String> renderer = Renderers.mask(isDigit, '#');
+      assertEquals("", renderer.apply(null, -1));
     }
   }
 
