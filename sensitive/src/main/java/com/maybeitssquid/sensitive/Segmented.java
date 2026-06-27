@@ -44,7 +44,7 @@ public class Segmented<T> extends Sensitive<T[]> {
    */
   protected final T getValue(final int index) {
     final T[] value = this.supplier.get();
-    return value == null ? null : value[index];
+    return value == null || index < 0 || index >= value.length ? null : value[index];
   }
 
   /**

@@ -3,10 +3,16 @@ package com.maybeitssquid.tin.us;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.maybeitssquid.tin.InvalidTINException;
+import java.util.Locale;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class EINTest {
+
+  @Test
+  void issuerIsUnitedStates() {
+    assertEquals(Locale.US, new EIN("12-3456789").issuer());
+  }
 
   @Nested
   class Formattable {

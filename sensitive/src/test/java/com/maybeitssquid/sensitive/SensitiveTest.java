@@ -74,6 +74,26 @@ class SensitiveTest {
     assertFalse(sensitiveString.equals(sensitiveObj));
   }
 
+  @SuppressWarnings({"SimplifiableAssertion", "ConstantValue"})
+  @Test
+  void testEqualsNullAndOtherType() {
+    assertFalse(sensitiveString.equals(null));
+    assertFalse(sensitiveString.equals(containedString));
+  }
+
+  @Test
+  void getValueReturnsContainedValue() {
+    // Use a dedicated subclass to reach the protected accessor directly.
+    var probe =
+        new Sensitive<String>(containedString) {
+          String probe() {
+            return getValue();
+          }
+        };
+    assertEquals(containedString, probe.probe());
+    assertSame(containedString, probe.probe());
+  }
+
   @Nested
   class DoNotSerializeInterface {
     @Test
