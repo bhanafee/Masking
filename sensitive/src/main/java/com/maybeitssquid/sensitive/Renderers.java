@@ -91,11 +91,15 @@ public class Renderers {
    * @return a renderer that masks leading characters
    */
   public static <T extends CharSequence> Renderer<T> mask(final int maskCodePoint) {
-    final String mask = Character.toString(maskCodePoint);
     return (cs, p) -> {
       if (cs == null) return "";
       final int redactions = Renderers.redactions(p, cs.length());
-      return mask.repeat(redactions) + cs.subSequence(redactions, cs.length());
+      final StringBuilder sb = new StringBuilder(cs.length());
+      for (int i = 0; i < redactions; i++) {
+        sb.appendCodePoint(maskCodePoint);
+      }
+      sb.append(cs, redactions, cs.length());
+      return sb.toString();
     };
   }
 
@@ -145,20 +149,25 @@ public class Renderers {
     final IntPredicate predicate = redactable == null ? c -> true : redactable;
     return (cs, p) -> {
       if (cs == null) return "";
-      final long significant = cs.codePoints().filter(predicate).count();
-      final int redactions = Renderers.redactions(p, (int) significant);
-      final StringBuilder builder = new StringBuilder(cs.length());
-
+      final int len = cs.length();
+      int significant = 0;
+      for (int i = 0; i < len; ) {
+        int cp = Character.codePointAt(cs, i);
+        if (predicate.test(cp)) significant++;
+        i += Character.charCount(cp);
+      }
+      final int redactions = Renderers.redactions(p, significant);
+      final StringBuilder builder = new StringBuilder(len);
       int redacted = 0;
-      var iterator = cs.codePoints().iterator();
-      while (iterator.hasNext()) {
-        int codePoint = iterator.nextInt();
+      for (int i = 0; i < len; ) {
+        int codePoint = Character.codePointAt(cs, i);
         if (redacted < redactions && predicate.test(codePoint)) {
           builder.appendCodePoint(maskCodePoint);
-          redacted += 1;
+          redacted++;
         } else {
           builder.appendCodePoint(codePoint);
         }
+        i += Character.charCount(codePoint);
       }
       return builder.toString();
     };

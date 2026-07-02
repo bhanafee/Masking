@@ -232,6 +232,9 @@ public class Sensitive<T> implements Formattable {
     return supplier.get();
   }
 
+  private static final String FORMAT_S = "%s";
+  private static final String FORMAT_UPPER_S = "%S";
+
   /**
    * Generates a format string to apply the parts of the formatting instructions that are not
    * covered by the renderer.
@@ -242,8 +245,15 @@ public class Sensitive<T> implements Formattable {
    * @return a format string
    */
   protected String residualFormat(final int width, final boolean left, final boolean upper) {
-    return String.join(
-        "", "%", left ? "-" : "", width == -1 ? "" : String.valueOf(width), upper ? "S" : "s");
+    if (width == -1 && !left) {
+      return upper ? FORMAT_UPPER_S : FORMAT_S;
+    }
+    final StringBuilder sb = new StringBuilder(8);
+    sb.append('%');
+    if (left) sb.append('-');
+    if (width != -1) sb.append(width);
+    sb.append(upper ? 'S' : 's');
+    return sb.toString();
   }
 
   /**

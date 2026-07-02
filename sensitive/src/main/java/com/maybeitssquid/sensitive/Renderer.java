@@ -55,6 +55,10 @@ public interface Renderer<T> {
    */
   CharSequence apply(T t, int precision);
 
+  /** Singleton empty renderer — non-capturing, so one instance suffices for all type parameters. */
+  @SuppressWarnings("rawtypes")
+  Renderer EMPTY = (t, p) -> "";
+
   /**
    * Returns a renderer that always returns an empty string, ensuring no sensitive data is
    * disclosed.
@@ -65,7 +69,8 @@ public interface Renderer<T> {
    * @param <T> the type of data the renderer accepts (ignored since output is always empty)
    * @return a renderer that always returns an empty string
    */
+  @SuppressWarnings("unchecked")
   static <T> Renderer<T> empty() {
-    return (t, p) -> "";
+    return EMPTY;
   }
 }
