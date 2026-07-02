@@ -18,12 +18,7 @@ mockito = "5.+"
 slf4j = "2.+"
 
 [libraries]
-# Security patches - BouncyCastle (CVE-2026-5598 covers all prior bcprov/bcpg CVEs)
-patch-cve-2026-5598-bcpg = { module = "org.bouncycastle:bcpg-jdk18on", version = { strictly = "[1.84,)", prefer = "1.84" } }
-patch-cve-2026-5598-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version = { strictly = "[1.84,)", prefer = "1.84" } }
-
 # Security patches - Apache Commons
-patch-cve-2025-48734 = { module = "commons-beanutils:commons-beanutils", version = { strictly = "[1.11.0,)", prefer = "1.11.0" } }
 patch-cve-2025-48924 = { module = "org.apache.commons:commons-lang3", version = { strictly = "[3.18.0,)", prefer = "3.18.0" } }
 
 # Security patches - Other
@@ -32,6 +27,7 @@ patch-cve-2025-4949 = { module = "org.eclipse.jgit:org.eclipse.jgit", version = 
 # jackson 2.22.0: core fixes GHSA-72hv-8253-57qq; databind fixes GHSA-5jmj-h7xm-6q6v plus
 # the 2.21.4 advisories (5hh8, 9fxm, hgj6, rmj7, j3rv, rcqc). 2.21.5 was never published, and
 # the stack is kept aligned to avoid mixing core/databind across the 2.21/2.22 boundary.
+# These are load-bearing: without them the OWASP plugin resolves jackson 2.21.x.
 patch-ghsa-72hv-8253-57qq = { module = "com.fasterxml.jackson.core:jackson-core", version = { strictly = "[2.22.0,)", prefer = "2.22.0" } }
 patch-ghsa-5jmj-h7xm-6q6v = { module = "com.fasterxml.jackson.core:jackson-databind", version = { strictly = "[2.22.0,)", prefer = "2.22.0" } }
 
@@ -44,8 +40,7 @@ mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter", version.
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 [bundles]
-security-patches = ["patch-cve-2022-45868", "patch-cve-2025-4949", "patch-cve-2025-48734", "patch-cve-2025-48924", "patch-cve-2026-5598-bcpg", "patch-cve-2026-5598-bcprov", "patch-ghsa-72hv-8253-57qq", "patch-ghsa-5jmj-h7xm-6q6v"]
-mockito = ["mockito-core", "mockito-junit-jupiter"]
+security-patches = ["patch-cve-2022-45868", "patch-cve-2025-4949", "patch-cve-2025-48924", "patch-ghsa-72hv-8253-57qq", "patch-ghsa-5jmj-h7xm-6q6v"]
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
