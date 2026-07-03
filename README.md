@@ -420,7 +420,7 @@ Ensure that any custom `Supplier<T>` implementations are also thread-safe.
 | Component | Version |
 |-----------|---------|
 | Java | 25 (toolchain; runs on 17+) |
-| Gradle | 9.5.1 |
+| Gradle | 9.6.1 |
 | SLF4J | 2.+ |
 | JUnit | 6.1.0 |
 | AssertJ | 3.+ |
