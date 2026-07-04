@@ -93,16 +93,16 @@ subprojects {
                 name = 'GitHubPackages'
                 url = uri("https://maven.pkg.github.com/${System.env.GITHUB_REPOSITORY ?: 'bhanafee/Masking'}")
                 credentials {
-                    username = project.findProperty('githubActor') ?: System.env.GITHUB_ACTOR ?: System.env.USERNAME ?: 'bhanafee'
-                    password = project.findProperty('githubToken') ?: System.env.GITHUB_TOKEN ?: System.env.TOKEN
+                    username = System.env.USERNAME ?: System.env.GITHUB_ACTOR
+                    password = System.env.TOKEN ?: System.env.GITHUB_TOKEN
                 }
             }
         }
         publications {
             mavenJava(MavenPublication) {
                 from components.java
+                artifactId = project.name
                 pom {
-                    name = project.name.replaceAll('-', ' ').split().collect { it.capitalize() }.join(' ')
                     description = 'Sensitive data protection for Java'
                     url = 'https://github.com/bhanafee/Masking'
                     licenses {
@@ -120,4 +120,12 @@ subprojects {
             }
         }
     }
+}
+
+configure(project(':sensitive')) {
+    publishing.publications.mavenJava.pom.name = 'Sensitive'
+}
+
+configure(project(':tin')) {
+    publishing.publications.mavenJava.pom.name = 'TIN'
 }
