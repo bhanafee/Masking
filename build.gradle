@@ -5,6 +5,7 @@ buildscript {
 }
 
 plugins {
+    id 'com.palantir.git-version' version '3.1.0' apply false
     alias(libs.plugins.spotless) apply false
     alias(libs.plugins.owasp.dependencycheck) apply false
 }
@@ -14,11 +15,12 @@ subprojects {
     apply plugin: 'jvm-test-suite'
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
+    apply plugin: 'com.palantir.git-version'
     apply plugin: 'com.diffplug.spotless'
     apply plugin: 'org.owasp.dependencycheck'
 
     group = 'com.maybeitssquid'
-    version = '1.0-SNAPSHOT'
+    version = gitVersion().replaceAll('^v', '')  // Strip 'v' prefix from git tags
 
     repositories {
         mavenCentral()
