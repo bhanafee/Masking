@@ -437,6 +437,4 @@ Ensure that any custom `Supplier<T>` implementations are also thread-safe.
 - [Code of Conduct](https://bhanafee.github.io/Masking/CODE_OF_CONDUCT.html)
 - [Claude Code Guide](https://bhanafee.github.io/Masking/CLAUDE.html)
 
----
-
-**License:** [![Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
