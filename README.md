@@ -1,7 +1,5 @@
 # Sensitive Data Masking
 
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-
 A Java library for protecting sensitive data from inadvertent disclosure through logging, traces, and UI rendering.
 
 ## The Problem
@@ -436,6 +434,9 @@ Ensure that any custom `Supplier<T>` implementations are also thread-safe.
 - [Test Results: tin](https://bhanafee.github.io/Masking/tests/tin/)
 - [Coverage Report: sensitive](https://bhanafee.github.io/Masking/coverage/sensitive/)
 - [Coverage Report: tin](https://bhanafee.github.io/Masking/coverage/tin/)
-- [Apache 2.0 License](https://bhanafee.github.io/Masking/LICENSE)
 - [Code of Conduct](https://bhanafee.github.io/Masking/CODE_OF_CONDUCT.html)
 - [Claude Code Guide](https://bhanafee.github.io/Masking/CLAUDE.html)
+
+---
+
+**License:** [![Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
