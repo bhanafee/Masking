@@ -6,6 +6,7 @@ java = "25"
 release = "17"
 
 # Plugin versions
+git-version = "5.0.0"
 spotless = "8.+"
 owasp-dependencycheck = "12.+"
 
@@ -42,5 +43,6 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 security-patches = ["patch-cve-2022-45868", "patch-cve-2025-4949", "patch-cve-2025-48924", "patch-ghsa-72hv-8253-57qq", "patch-ghsa-5jmj-h7xm-6q6v"]
 
 [plugins]
+git-version = { id = "com.palantir.git-version", version.ref = "git-version" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 owasp-dependencycheck = { id = "org.owasp.dependencycheck", version.ref = "owasp-dependencycheck" }
