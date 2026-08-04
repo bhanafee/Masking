@@ -435,6 +435,6 @@ Ensure that any custom `Supplier<T>` implementations are also thread-safe.
 - [Coverage Report: sensitive](https://bhanafee.github.io/Masking/coverage/sensitive/)
 - [Coverage Report: tin](https://bhanafee.github.io/Masking/coverage/tin/)
 - [Code of Conduct](https://bhanafee.github.io/Masking/CODE_OF_CONDUCT.html)
-- [Claude Code Guide](https://bhanafee.github.io/Masking/CLAUDE.html)
+- [Agents guidance](https://bhanafee.github.io/Masking/AGENTS.html)
 
 [![Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
