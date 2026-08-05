@@ -9,17 +9,17 @@ A Java library for protecting sensitive data (SSNs, credit card numbers, PII) fr
 ## Commands
 
 ```bash
-./gradlew build          # compile, spotless check, test, javadoc
-./gradlew test           # tests only (both subprojects)
-./gradlew :sensitive:test                        # test one subproject
-./gradlew :sensitive:test --tests "*.SensitiveTest.methodName"  # single test
-./gradlew spotlessApply  # auto-format code (must pass before build)
-./gradlew dependencyCheckAnalyze  # OWASP CVE scan (fails at CVSS >= 7)
+./gradlew build                   # compile, test, spotless check, javadoc
+./gradlew test                    # run tests (both subprojects)
+./gradlew :sensitive:test         # test one subproject
+./gradlew test --tests "..."      # run a single test class
+./gradlew spotlessApply           # auto-format (required before commit)
+./gradlew dependencyCheckAnalyze  # OWASP vulnerability scan (slow; fails at CVSS ≥ 7)
 ```
 
 On Windows, use `gradlew.bat` (or `.\gradlew` in PowerShell).
 
-The build uses a Java 25 toolchain and compiles to Java 17 bytecode (`release = "17"`). CI tests on Java 17, 21, and 25 on every push/PR to `main`.
+Build uses Java 25 toolchain, compiles to Java 17 bytecode (`release = "17"`). CI tests on Java 17, 21, and 25.
 
 ## Versioning and Releases
 
@@ -73,10 +73,10 @@ Two JPMS modules published as separate Gradle subprojects:
 
 **`UsTIN`** (in `:tin`) extends `Segmented<CharSequence>` and provides two static renderers: `MASKED` (concatenates segments then masks) for `%s`, and `MASKED_DELIMITED` (joins with `-` then masks, preserving delimiters) for `%#s`.
 
-### Security patches pattern
-
-`gradle/libs.versions.toml` uses a `patch-*` naming convention for CVE pins in `[libraries]` and collects them in the `security-patches` bundle in `[bundles]`. The root `build.gradle` applies these as `implementation` constraints across all subprojects. `settings.gradle` also loads them into the buildscript classpath via regex. New CVE patches follow the `patch-cve-XXXX-NNNNN` naming convention.
-
 ## Code style
 
 Spotless enforces Google Java Format. Run `./gradlew spotlessApply` before committing. `module-info.java` files are excluded from formatting.
+
+## Security patches
+
+For CVE patch management, see the `gradle-security-patch` skill. Use `/gradle-security-patch` to pin a CVE fix in the version catalog.
