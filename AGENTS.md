@@ -8,16 +8,31 @@ A Java library for protecting sensitive data (SSNs, credit card numbers, PII) fr
 
 ## Commands
 
+**Build and test:**
 ```bash
-./gradlew build                   # compile, test, spotless check, javadoc
-./gradlew test                    # run tests (both subprojects)
-./gradlew :sensitive:test         # test one subproject
-./gradlew test --tests "..."      # run a single test class
+./gradlew build              # compile, test, spotless check
+./gradlew test               # run all tests (both subprojects)
+./gradlew :sensitive:test    # test only sensitive module
+./gradlew :tin:test          # test only tin module
+./gradlew test --tests "*SensitiveTest"         # run tests by class name
+./gradlew test --tests "*SensitiveTest.test*"   # run tests by method pattern
+```
+
+**Code quality:**
+```bash
 ./gradlew spotlessApply           # auto-format (required before commit)
 ./gradlew dependencyCheckAnalyze  # OWASP vulnerability scan (slow; fails at CVSS ≥ 7)
 ```
 
+**External dependencies:** Standalone; two independent modules with `tin` depending on `sensitive`.
+
 Build uses Java 25 toolchain, compiles to Java 17 bytecode (`release = "17"`). CI tests on Java 17, 21, and 25.
+
+## Key Entry Points
+
+- **`Sensitive<T>`** — base container class for wrapping sensitive data
+- **`Renderer<T>`** — interface to implement for custom rendering strategies (extend `Renderers` factory)
+- **`SSN` / `EIN`** — pre-built sensitive types for US taxpayer identification numbers (`:tin` module)
 
 ## Versioning and Releases
 
