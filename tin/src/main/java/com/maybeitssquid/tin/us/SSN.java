@@ -15,6 +15,10 @@ import java.util.regex.Pattern;
  *   <li>SSSS is the serial number (4 digits)
  * </ul>
  *
+ * <p>Note: This class only validates the structural format (i.e., correct length and digit
+ * requirements) of the SSN. It does not validate against real-world SSA issuing rules (e.g.,
+ * rejecting area numbers like 000 or 666).
+ *
  * <p>This class provides automatic masking when formatted. By default, the leading digits of the
  * SSN are masked. Use the alternate form ({@code %#s}) to show delimiters:
  *
@@ -91,6 +95,7 @@ public final class SSN extends UsTIN {
   }
 
   private static CharSequence[] parse(final CharSequence raw) {
+    if (raw == null) throw new InvalidTINException("Invalid SSN, value is null");
     final Matcher matcher = SSN_PATTERN.matcher(raw);
     if (!matcher.matches()) throw new InvalidTINException("Invalid SSN");
     return new CharSequence[] {

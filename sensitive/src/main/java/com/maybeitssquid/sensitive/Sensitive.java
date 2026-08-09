@@ -323,8 +323,9 @@ public class Sensitive<T> implements Formattable {
    * the value from being serialized via standard Java serialization.
    *
    * <p>This class is designed to be used with {@link Sensitive} to provide automatic protection
-   * against inadvertent serialization of sensitive data. When an instance of this class is
-   * serialized, the contained value will be lost (deserialized as {@code null}).
+   * against inadvertent serialization of sensitive data. Because this class does not implement
+   * {@link java.io.Serializable}, any attempt to serialize an instance of this class will fail with
+   * a {@link java.io.NotSerializableException}.
    *
    * <h2>Usage</h2>
    *
@@ -332,8 +333,8 @@ public class Sensitive<T> implements Formattable {
    * DoNotSerialize<String> wrapped = new DoNotSerialize<>("secret");
    * String value = wrapped.get(); // Returns "secret"
    *
-   * // After serialization and deserialization:
-   * String value = deserializedWrapped.get(); // Returns null
+   * // Attempting to serialize will fail:
+   * // ObjectOutputStream.writeObject(wrapped); // throws NotSerializableException
    * }</pre>
    *
    * <h2>Thread Safety</h2>

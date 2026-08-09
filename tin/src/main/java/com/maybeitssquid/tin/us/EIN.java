@@ -75,13 +75,14 @@ public final class EIN extends UsTIN {
 
   private static CharSequence[] validate(final CharSequence campus, final CharSequence serial) {
     if (!CAMPUS_PATTERN.matcher(campus).matches())
-      throw new InvalidTINException("Invalid EIN, group part must be 2 digits");
+      throw new InvalidTINException("Invalid EIN, campus part must be 2 digits");
     if (!SERIAL_PATTERN.matcher(serial).matches())
       throw new InvalidTINException("Invalid EIN, serial part must be 7 digits");
     return new CharSequence[] {campus, serial};
   }
 
   private static CharSequence[] parse(final CharSequence raw) {
+    if (raw == null) throw new InvalidTINException("Invalid EIN, value is null");
     final Matcher matcher = EIN_PATTERN.matcher(raw);
     if (!matcher.matches()) throw new InvalidTINException("Invalid EIN");
     return new CharSequence[] {matcher.group("campus"), matcher.group("serial")};

@@ -158,7 +158,7 @@ class SSNTest {
 
   @Test
   void constructFromCharSequenceNull() {
-    assertThrows(NullPointerException.class, () -> new SSN((CharSequence) null));
+    assertThrows(InvalidTINException.class, () -> new SSN((CharSequence) null));
   }
 
   @Test

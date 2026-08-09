@@ -153,7 +153,7 @@ class EINTest {
 
   @Test
   void constructFromCharSequenceNull() {
-    assertThrows(NullPointerException.class, () -> new EIN((CharSequence) null));
+    assertThrows(InvalidTINException.class, () -> new EIN((CharSequence) null));
   }
 
   @Test
