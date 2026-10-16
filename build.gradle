@@ -62,9 +62,6 @@ subprojects {
             useJUnitJupiter()
             dependencies {
                 implementation platform(libs.junit.bom)
-                implementation libs.assertj.core
-                implementation libs.mockito.core
-                implementation libs.mockito.junit.jupiter
                 runtimeOnly libs.junit.platform.launcher
             }
 
