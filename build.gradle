@@ -46,15 +46,15 @@ subprojects {
     }
     // shared:end prerelease-filter
 
+    // shared:begin java
     java {
-        // shared:begin toolchain
         toolchain {
             languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
         }
-        // shared:end toolchain
         withSourcesJar()
         withJavadocJar()
     }
+    // shared:end java
 
     dependencies {
         constraints {
